@@ -1,0 +1,755 @@
+
+[
+    {  
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart graph",
+        "id": "sma-general",
+        "title": "Simple Moving Average (SMA)",
+        "icon": "TrendingUp",
+        "summary": "Learn how simple moving averages smooth price data to identify trends and potential reversal points.",
+        "category": "Trend Indicator",
+        "overview": "Simple Moving Averages (SMA) smooth price data by calculating the average closing price over a specified period, creating a single line to identify trend direction. As a lagging indicator, SMAs use past price data and are considered trend-following.",
+        "types": [
+            "SMA10 (10-period)",
+            "SMA20 (20-period)",
+            "SMA50 (50-period)",
+            "SMA200 (200-period)"
+        ],
+        "usage": "SMAs identify trend direction, act as dynamic support/resistance levels, and generate signals via crossovers or price interactions. Shorter SMAs (e.g., SMA10) are more sensitive to price changes, while longer SMAs (e.g., SMA200) reflect major trends. Traders use SMAs for trend confirmation, entry/exit signals, and to filter market noise across various timeframes.",
+        "implementation": "Our Predictor tool tests various SMA periods against historical data to optimize settings for specific securities and timeframes. The Backtester allows combining SMAs with other indicators for sophisticated strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart graph",
+        "id": "ema-general",
+        "title": "Exponential Moving Average (EMA)",
+        "icon": "TrendingUp",
+        "summary": "Understand how exponential moving averages prioritize recent prices for faster trend detection.",
+        "category": "Trend Indicator",
+        "overview": "Exponential Moving Averages (EMA) calculate a weighted average of closing prices, giving more importance to recent data. This makes EMAs more responsive to price changes compared to SMAs, ideal for capturing short- to long-term trends.",
+        "types": [
+            "EMA10 (10-period)",
+            "EMA20 (20-period)",
+            "EMA50 (50-period)",
+            "EMA200 (200-period)"
+        ],
+        "usage": "EMAs are used to identify trend direction, provide dynamic support/resistance, and generate crossover signals. A price above an EMA suggests bullish momentum, while a price below indicates bearish momentum. Traders use EMAs for trend-following, timing entries/exits, and confirming trend strength across timeframes.",
+        "implementation": "Our tools allow testing different EMA periods and combining them with other indicators. The Backtester evaluates EMA-based strategies across various market conditions."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart arrow",
+        "id": "sma10-sma50-crossover",
+        "title": "SMA10 over SMA50 Crossover",
+        "icon": "GitCompareArrows",
+        "summary": "Learn how the SMA10 over SMA50 crossover identifies medium-term trend reversals.",
+        "category": "Trend Strategy",
+        "overview": "The SMA10 over SMA50 crossover strategy uses two simple moving averages to generate buy/sell signals based on their interaction. The SMA10 (10-period) reacts quickly to price changes, while the SMA50 (50-period) reflects medium-term trends.",
+        "types": [
+            "Golden Cross (SMA10 > SMA50)",
+            "Death Cross (SMA10 < SMA50)"
+        ],
+        "usage": "A Golden Cross (SMA10 crosses above SMA50) signals a bullish trend, prompting a buy. A Death Cross (SMA10 crosses below SMA50) indicates a bearish trend, suggesting a sell or short. Used for swing trading (daily), position trading (weekly), or scalping (intraday), this strategy works across stocks, forex, indices, and commodities.",
+        "implementation": "Our tools test optimal SMA periods and combine crossovers with RSI or volume for confirmation. The Backtester simulates historical performance to refine strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart arrow",
+        "id": "sma50-sma200-crossover",
+        "title": "SMA50 over SMA200 Crossover",
+        "icon": "GitCompareArrows",
+        "summary": "Understand the Golden and Death Cross for identifying major long-term trend shifts.",
+        "category": "Trend Strategy",
+        "overview": "The SMA50 over SMA200 crossover, known as Golden Cross (bullish) or Death Cross (bearish), compares a 50-period SMA with a 200-period SMA to identify significant long-term trend changes.",
+        "types": [
+            "Golden Cross (SMA50 > SMA200)",
+            "Death Cross (SMA50 < SMA200)"
+        ],
+        "usage": "A Golden Cross signals a long-term uptrend, prompting long positions, while a Death Cross indicates a bearish trend, suggesting exits or shorts. Used for long-term position trading (daily), strategic investing (weekly), or asset allocation (monthly), it’s reliable for capturing major trends but lags in fast markets.",
+        "implementation": "Our Backtester evaluates crossover performance historically, allowing combination with RSI or volume confirmation for enhanced signals."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart arrow",
+        "id": "ema10-ema50-crossover",
+        "title": "EMA10 over EMA50 Crossover",
+        "icon": "GitCompareArrows",
+        "summary": "Master the EMA10 over EMA50 crossover for short- to medium-term trend signals.",
+        "category": "Trend Strategy",
+        "overview": "The EMA10 over EMA50 crossover compares a 10-period EMA with a 50-period EMA to detect short- to medium-term trend shifts. More responsive than SMA crossovers, it’s ideal for dynamic markets.",
+        "types": [
+            "Bullish Crossover (EMA10 > EMA50)",
+            "Bearish Crossover (EMA10 < EMA50)"
+        ],
+        "usage": "A bullish crossover (EMA10 > EMA50) signals an uptrend, prompting long positions. A bearish crossover (EMA10 < EMA50) indicates a downtrend, suggesting exits or shorts. Used for swing trading (daily) or scalping (intraday) across stocks, forex, and crypto.",
+        "implementation": "Our tools test EMA crossover settings and combine with momentum indicators like RSI. The Backtester optimizes strategies using historical data."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart arrow",
+        "id": "ema20-ema50-crossover",
+        "title": "EMA20 over EMA50 Crossover",
+        "icon": "GitCompareArrows",
+        "summary": "Learn how the EMA20 over EMA50 crossover identifies medium-term trend changes.",
+        "category": "Trend Strategy",
+        "overview": "The EMA20 over EMA50 crossover uses a 20-period EMA and a 50-period EMA to generate trend signals, balancing sensitivity and reliability for medium-term trading.",
+        "types": [
+            "Bullish Crossover (EMA20 > EMA50)",
+            "Bearish Crossover (EMA20 < EMA50)"
+        ],
+        "usage": "A bullish crossover (EMA20 > EMA50) signals a medium-term uptrend, prompting buys. A bearish crossover (EMA20 < EMA50) suggests a downtrend, indicating sells or shorts. Used for swing trading (daily) or position trading (weekly) in various markets.",
+        "implementation": "Our tools optimize EMA periods and combine with volume indicators. The Backtester evaluates historical performance."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart arrow",
+        "id": "ema20-ema200-crossover",
+        "title": "EMA20 over EMA200 Crossover",
+        "icon": "GitCompareArrows",
+        "summary": "Understand the EMA20 over EMA200 crossover for long-term trend identification.",
+        "category": "Trend Strategy",
+        "overview": "The EMA20 over EMA200 crossover compares a 20-period EMA with a 200-period EMA to detect significant long-term trend shifts with faster response than SMA crossovers.",
+        "types": [
+            "Bullish Crossover (EMA20 > EMA200)",
+            "Bearish Crossover (EMA20 < EMA200)"
+        ],
+        "usage": "A bullish crossover (EMA20 > EMA200) signals a long-term uptrend, prompting long positions. A bearish crossover (EMA20 < EMA200) indicates a downtrend, suggesting exits or shorts. Used for position trading (daily) or strategic investing (weekly/monthly).",
+        "implementation": "Our tools test crossover settings and combine with ADX for trend strength. The Backtester simulates performance."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart arrow",
+        "id": "ema50-ema200-crossover",
+        "title": "EMA50 over EMA200 Crossover",
+        "icon": "GitCompareArrows",
+        "summary": "Master the EMA50 over EMA200 crossover for responsive long-term trend identification.",
+        "category": "Trend Strategy",
+        "overview": "The EMA50 over EMA200 crossover compares a 50-period EMA with a 200-period EMA to detect major trend shifts. More responsive than SMA crossovers, it’s widely used for long-term trend analysis.",
+        "types": [
+            "Bullish Crossover (EMA50 > EMA200)",
+            "Bearish Crossover (EMA50 < EMA200)"
+        ],
+        "usage": "A bullish crossover (EMA50 > EMA200) signals a long-term uptrend, prompting long positions. A bearish crossover (EMA50 < EMA200) indicates a downtrend, suggesting exits or shorts. Applied in daily (position trading), weekly (strategic investing), or monthly (asset allocation) timeframes, it’s effective across markets.",
+        "implementation": "Our tools test EMA crossover settings and combine with momentum indicators like RSI. The Backtester optimizes strategies using historical data."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart graph",
+        "id": "rsi",
+        "title": "Relative Strength Index (RSI)",
+        "icon": "Gauge",
+        "summary": "Understand how RSI measures the magnitude of recent price changes to evaluate overbought or oversold conditions.",
+        "category": "Momentum",
+        "overview": "The Relative Strength Index (RSI) is a momentum oscillator that measures the speed and change of price movements. RSI oscillates between zero and 100 and is typically used to identify overbought or oversold conditions in a market.",
+        "types": [
+            "Standard RSI (14-period)",
+            "Modified RSI (various periods)"
+        ],
+        "usage": "RSI values above 70 indicate overbought conditions, while values below 30 suggest oversold conditions. Traders use RSI for spotting reversals, confirming trend strength, and identifying divergences between price and RSI.",
+        "implementation": "Our tools allow testing different RSI periods and thresholds. The Evaluator compares RSI-based strategies against other approaches."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart arrow",
+        "id": "macd",
+        "title": "Moving Average Convergence Divergence (MACD)",
+        "icon": "GitCompareArrows",
+        "summary": "Master the MACD to spot changes in trend strength, direction, momentum, and duration.",
+        "category": "Trend/Momentum",
+        "overview": "MACD is a trend-following momentum indicator showing the relationship between two EMAs (12-period and 26-period). It consists of the MACD line, signal line (9-day EMA of MACD), and histogram.",
+        "types": [
+            "Standard MACD (12,26,9)",
+            "MACD Histogram"
+        ],
+        "usage": "Buy signals occur when the MACD line crosses above the signal line; sell signals when it crosses below. Divergences and zero-line crosses provide additional insights. Effective in trending markets, MACD is used for swing, position, or day trading.",
+        "implementation": "Our tools customize MACD parameters and test across timeframes. The Backtester simulates historical performance."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart waves",
+        "id": "bollinger-bands",
+        "title": "Bollinger Bands",
+        "icon": "Maximize",
+        "summary": "Learn how Bollinger Bands measure market volatility and identify overbought or oversold conditions.",
+        "category": "Volatility",
+        "overview": "Bollinger Bands consist of a 20-period SMA (middle band) with two outer bands set at 2 standard deviations, adapting to market volatility.",
+        "types": [
+            "Standard Bollinger Bands",
+            "Percentage B Bollinger Bands"
+        ],
+        "usage": "Narrow bands indicate low volatility (squeeze), while wide bands suggest high volatility. Prices touching outer bands may signal overbought/oversold conditions or trend continuation. Used for breakouts, reversals, or mean reversion across timeframes.",
+        "implementation": "Our Predictor optimizes Bollinger Band settings. The Backtester tests breakout or bounce strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart bar",
+        "id": "obv",
+        "title": "On-Balance Volume (OBV)",
+        "icon": "BarChart3",
+        "summary": "Understand how OBV measures buying and selling pressure to confirm price trends.",
+        "category": "Volume",
+        "overview": "On-Balance Volume (OBV) tracks cumulative volume, adding volume on up days and subtracting on down days to measure buying/selling pressure.",
+        "types": [
+            "Standard OBV"
+        ],
+        "usage": "OBV trending with price confirms trends; divergences signal potential reversals. Used for identifying accumulation/distribution in stocks, indices, or commodities.",
+        "implementation": "Our tools test OBV strategies and combine with other indicators. The Backtester evaluates trend confirmation."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart bar",
+        "id": "volume-rate-of-change",
+        "title": "Volume Rate of Change",
+        "icon": "BarChart3",
+        "summary": "Learn how Volume Rate of Change measures the speed of volume changes to identify trend reversals or breakouts.",
+        "category": "Volume",
+        "overview": "Volume Rate of Change measures the percentage change in trading volume over a period to detect shifts in market activity.",
+        "types": [
+            "Standard Volume Rate of Change"
+        ],
+        "usage": "Sharp volume increases signal breakouts or trend starts; declining volume indicates weakening momentum. Used in swing or day trading to confirm price movements.",
+        "implementation": "Our tools test Volume Rate of Change settings. The Backtester assesses its effectiveness in spotting trend shifts."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart bar",
+        "id": "accumulation-distribution",
+        "title": "Accumulation/Distribution Line",
+        "icon": "BarChart3",
+        "summary": "Understand how the Accumulation/Distribution Line combines price and volume to show buying/selling pressure.",
+        "category": "Volume",
+        "overview": "The Accumulation/Distribution Line combines price and volume to assess buying/selling pressure, identifying accumulation or distribution phases.",
+        "types": [
+            "Standard Accumulation/Distribution Line"
+        ],
+        "usage": "Rising A/D with flat/falling prices suggests accumulation; falling A/D with rising prices indicates distribution. Used for spotting reversals or confirming trends.",
+        "implementation": "Our tools test A/D strategies. The Backtester evaluates divergence-based performance."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart bar",
+        "id": "chaikin-money-flow",
+        "title": "Chaikin Money Flow (CMF)",
+        "icon": "BarChart3",
+        "summary": "Learn how Chaikin Money Flow measures buying and selling pressure based on price and volume.",
+        "category": "Volume",
+        "overview": "Chaikin Money Flow (CMF) combines price and volume to measure buying/selling pressure over a period, oscillating between -1 and +1.",
+        "types": [
+            "Standard CMF (20-period)"
+        ],
+        "usage": "Positive CMF indicates buying pressure; negative suggests selling pressure. Used for confirming trends or spotting divergences in swing or position trading.",
+        "implementation": "Our tools calculate CMF dynamically. The Backtester tests trend confirmation strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart lines",
+        "id": "fibonacci-retracement",
+        "title": "Fibonacci Retracement",
+        "icon": "GitFork",
+        "summary": "Learn how to identify potential support and resistance levels using Fibonacci ratios.",
+        "category": "Support/Resistance",
+        "overview": "Fibonacci Retracement levels, based on Fibonacci ratios (23.6%, 38.2%, 50%, 61.8%, 78.6%), indicate potential support/resistance zones after significant price moves.",
+        "types": [
+            "Standard Fibonacci Levels",
+            "Custom Fibonacci Levels"
+        ],
+        "usage": "Traders use Fibonacci levels to identify reversal points during pullbacks or rallies within trends. Applied in swing, day, or position trading across markets.",
+        "implementation": "Our tools auto-identify highs/lows for Fibonacci placement. The Backtester tests reactions at these levels."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart graph",
+        "id": "stochastic-oscillator",
+        "title": "Stochastic Oscillator",
+        "icon": "LineChart",
+        "summary": "Understand how this momentum indicator compares a security's closing price to its price range.",
+        "category": "Momentum",
+        "overview": "The Stochastic Oscillator compares a closing price to its price range over a period, displayed as %K and %D lines, to identify momentum.",
+        "types": [
+            "Fast Stochastic",
+            "Slow Stochastic",
+            "Full Stochastic"
+        ],
+        "usage": "Readings above 80 indicate overbought conditions; below 20 suggest oversold. %K/%D crossovers generate buy/sell signals. Used for reversals or trend confirmation.",
+        "implementation": "Our tools test stochastic settings. The Evaluator assesses performance in various markets."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart speed",
+        "id": "williams-percent-range",
+        "title": "Williams %R",
+        "icon": "Gauge",
+        "summary": "Learn how Williams %R identifies overbought and oversold conditions based on price range.",
+        "category": "Momentum",
+        "overview": "Williams %R is a momentum indicator measuring a security’s closing price relative to its high-low range over a period, oscillating between 0 and -100.",
+        "types": [
+            "Standard Williams %R (14-period)"
+        ],
+        "usage": "Readings above -20 indicate overbought; below -80 suggest oversold. Used for reversals or trend confirmation in scalping or swing trading.",
+        "implementation": "Our tools adjust %R periods. The Backtester tests reversal strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart activity",
+        "id": "adx",
+        "title": "Average Directional Index (ADX)",
+        "icon": "Activity",
+        "summary": "Learn how ADX measures the strength of a trend to identify trending markets.",
+        "category": "Trend",
+        "overview": "ADX, part of the Directional Movement System, measures trend strength (0-100) using +DI and -DI. ADX > 25 indicates a strong trend; < 20 suggests a weak/range-bound market.",
+        "types": [
+            "Standard ADX",
+            "Modified ADX"
+        ],
+        "usage": "Traders use ADX to confirm trend strength and +DI/-DI crossovers for direction. Effective for swing, day, or position trading in trending markets.",
+        "implementation": "Our tools test ADX settings. The Backtester evaluates trend-based strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart cloud",
+        "id": "ichimoku-cloud",
+        "title": "Ichimoku Cloud",
+        "icon": "Cloud",
+        "summary": "Understand how the Ichimoku Cloud provides insights into trend direction, momentum, and support/resistance.",
+        "category": "Trend/Momentum/Support/Resistance",
+        "overview": "The Ichimoku Cloud, with five lines (Tenkan-sen, Kijun-sen, Senkou Span A/B, Chikou Span), provides trend, momentum, and support/resistance insights. The cloud indicates bullish/bearish sentiment.",
+        "types": [
+            "Standard Ichimoku Cloud",
+            "Modified Ichimoku"
+        ],
+        "usage": "Price above the cloud signals bullish trends; below indicates bearish. Tenkan/Kijun crossovers provide entry/exit signals. Used for trend-following or reversal strategies.",
+        "implementation": "Our tools plot Ichimoku Clouds and test parameters. The Backtester evaluates performance."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart equalizer",
+        "id": "vwap",
+        "title": "Volume-Weighted Average Price (VWAP)",
+        "icon": "SlidersHorizontal",
+        "summary": "Learn how VWAP calculates the average price weighted by volume to identify fair value.",
+        "category": "Volume/Price",
+        "overview": "VWAP calculates the average price weighted by volume, serving as a benchmark for fair value, especially for intraday trading.",
+        "types": [
+            "Standard VWAP",
+            "Anchored VWAP"
+        ],
+        "usage": "Prices above VWAP suggest bullish sentiment; below indicate bearish. Traders use VWAP for entry/exit points or to assess buying/selling pressure.",
+        "implementation": "Our tools calculate VWAP dynamically. The Backtester tests VWAP-based strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart scatter",
+        "id": "parabolic-sar",
+        "title": "Parabolic SAR",
+        "icon": "ScatterChart",
+        "summary": "Understand how Parabolic SAR identifies potential trend reversals and provides entry/exit signals.",
+        "category": "Trend",
+        "overview": "Parabolic SAR places dots above/below price to signal trend direction. Dots below price indicate bullish trends; above suggest bearish.",
+        "types": [
+            "Standard Parabolic SAR",
+            "Modified SAR"
+        ],
+        "usage": "Traders use SAR for entry points in trending markets and to trail stop-losses. Combined with MACD or ATR for confirmation.",
+        "implementation": "Our tools customize SAR settings. The Backtester simulates performance."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart network",
+        "id": "atr",
+        "title": "Average True Range (ATR)",
+        "icon": "Network",
+        "summary": "Learn how ATR measures market volatility to set stop-losses and determine position sizes.",
+        "category": "Volatility",
+        "overview": "ATR measures price volatility over a period, aiding in risk management and position sizing.",
+        "types": [
+            "Standard ATR (14-period)",
+            "Modified ATR"
+        ],
+        "usage": "Higher ATR values suggest wider stop-losses; lower values indicate tighter stops. Used with trend indicators like SAR for risk management.",
+        "implementation": "Our tools calculate ATR dynamically. The Backtester tests risk management strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart maximize",
+        "id": "keltner-channels",
+        "title": "Keltner Channels",
+        "icon": "Maximize",
+        "summary": "Understand how Keltner Channels identify trends and breakouts using volatility.",
+        "category": "Volatility/Trend",
+        "overview": "Keltner Channels consist of an EMA (middle band) with upper/lower bands based on ATR, adapting to volatility for trend and breakout signals.",
+        "types": [
+            "Standard Keltner Channels (20-period, 2x ATR)"
+        ],
+        "usage": "Price breaking above the upper band signals buys; below the lower band suggests sells. Used for trend-following or breakout strategies in day or swing trading.",
+        "implementation": "Our tools adjust channel settings. The Backtester tests breakout performance."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart candlestick",
+        "id": "heikin-ashi",
+        "title": "Heikin Ashi Candlesticks",
+        "icon": "CandlestickChart",
+        "summary": "Learn how Heikin Ashi candlesticks smooth price action to identify trends.",
+        "category": "Trend",
+        "overview": "Heikin Ashi candlesticks modify traditional candlesticks to smooth price action, reducing noise and highlighting trends.",
+        "types": [
+            "Standard Heikin Ashi"
+        ],
+        "usage": "Used to identify trends and reversals in choppy markets. Combined with other indicators for robust analysis.",
+        "implementation": "Our tools generate Heikin Ashi charts. The Backtester evaluates trend strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart waves",
+        "id": "elliott-wave",
+        "title": "Elliott Wave Theory",
+        "icon": "Waves",
+        "summary": "Understand how Elliott Wave Theory identifies repetitive price patterns to predict movements.",
+        "category": "Trend/Support/Resistance",
+        "overview": "Elliott Wave Theory identifies market price patterns in five-wave impulse and three-wave corrective structures.",
+        "types": [
+            "Standard Elliott Wave Patterns"
+        ],
+        "usage": "Traders predict price movements based on wave completions, often with Fibonacci retracement. Used for trend or reversal strategies.",
+        "implementation": "Our tools assist in wave identification. The Backtester tests wave-based strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart activity",
+        "id": "cci",
+        "title": "Commodity Channel Index (CCI)",
+        "icon": "Activity",
+        "summary": "Learn how CCI measures price deviations to identify overbought or oversold conditions.",
+        "category": "Momentum",
+        "overview": "CCI measures price deviation from its average, identifying overbought (> +100) or oversold (< -100) conditions.",
+        "types": [
+            "Standard CCI (20-period)",
+            "Modified CCI"
+        ],
+        "usage": "Used for reversals in range-bound markets or trend confirmation. Effective in swing or day trading.",
+        "implementation": "Our tools customize CCI periods. The Backtester evaluates performance."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart speed",
+        "id": "price-rate-of-change",
+        "title": "Price Rate of Change (ROC)",
+        "icon": "Gauge",
+        "summary": "Understand how Price ROC measures momentum through percentage price changes.",
+        "category": "Momentum",
+        "overview": "Price Rate of Change (ROC) calculates the percentage change in price over a period to gauge momentum.",
+        "types": [
+            "Standard ROC (12-period)"
+        ],
+        "usage": "Positive ROC indicates upward momentum; negative suggests downward. Used for trend confirmation or spotting divergences in swing trading.",
+        "implementation": "Our tools adjust ROC periods. The Backtester tests momentum strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart network",
+        "id": "standard-deviation",
+        "title": "Standard Deviation",
+        "icon": "Network",
+        "summary": "Learn how Standard Deviation measures price volatility for risk assessment.",
+        "category": "Volatility",
+        "overview": "Standard Deviation measures price dispersion around the mean, indicating market volatility.",
+        "types": [
+            "Standard SD (20-period)"
+        ],
+        "usage": "Higher SD suggests increased volatility; lower indicates stability. Used with Bollinger Bands or for risk management in position sizing.",
+        "implementation": "Our tools calculate SD dynamically. The Backtester tests volatility-based strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart trend",
+        "id": "aroon-oscillator",
+        "title": "Aroon Oscillator",
+        "icon": "TrendingUp",
+        "summary": "Understand how the Aroon Oscillator identifies trend strength and potential reversals.",
+        "category": "Trend/Momentum",
+        "overview": "The Aroon Oscillator measures the time since recent highs/lows, oscillating between -100 and +100 to gauge trend strength and direction.",
+        "types": [
+            "Standard Aroon (25-period)",
+            "Modified Aroon"
+        ],
+        "usage": "Positive values (>0) indicate uptrends; negative (<0) suggest downtrends. Zero-line crosses signal reversals. Used for swing, position, or day trading.",
+        "implementation": "Our tools test Aroon settings. The Backtester evaluates trend and reversal strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart bar",
+        "id": "volume-oscillator",
+        "title": "Volume Oscillator",
+        "icon": "BarChart3",
+        "summary": "Learn how the Volume Oscillator measures volume trends to confirm price movements.",
+        "category": "Volume",
+        "overview": "The Volume Oscillator calculates the difference between short-term and long-term volume moving averages to assess trading activity.",
+        "types": [
+            "Standard Volume Oscillator (5,20 periods)"
+        ],
+        "usage": "Positive values confirm breakouts or trends; negative values suggest weakening momentum. Used for scalping, swing, or long-term trend analysis.",
+        "implementation": "Our tools adjust oscillator periods. The Backtester tests breakout confirmation strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart activity",
+        "id": "ease-of-movement",
+        "title": "Ease of Movement (EOM)",
+        "icon": "Activity",
+        "summary": "Understand how EOM relates price movement to volume for trend analysis.",
+        "category": "Volume/Momentum",
+        "overview": "Ease of Movement (EOM) measures the ease of price movement relative to volume, oscillating around zero to indicate trend strength.",
+        "types": [
+            "Standard EOM (14-period)"
+        ],
+        "usage": "Positive EOM signals easier upward movement; negative indicates downward ease. Used for reversals or trend confirmation in day or swing trading.",
+        "implementation": "Our tools calculate EOM dynamically. The Backtester tests divergence-based strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart maximize",
+        "id": "donchian-channels",
+        "title": "Donchian Channels",
+        "icon": "Maximize",
+        "summary": "Learn how Donchian Channels identify trends and breakouts using price extremes.",
+        "category": "Trend/Volatility",
+        "overview": "Donchian Channels plot the highest high and lowest low over a period, with a middle band as their average, to identify trends and breakouts.",
+        "types": [
+            "Standard Donchian (20-period)"
+        ],
+        "usage": "Price breaking above the upper band signals buys; below the lower band suggests sells. Used for trend-following or breakout strategies across timeframes.",
+        "implementation": "Our tools adjust channel periods. The Backtester tests breakout performance."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart map pin",
+        "id": "pivot-points",
+        "title": "Pivot Points",
+        "icon": "MapPin",
+        "summary": "Understand how Pivot Points identify support and resistance levels for trading.",
+        "category": "Support/Resistance",
+        "overview": "Pivot Points calculate support (S1, S2, S3) and resistance (R1, R2, R3) levels using the previous session’s high, low, and close prices.",
+        "types": [
+            "Standard Pivot Points",
+            "Fibonacci Pivot Points"
+        ],
+        "usage": "Traders buy near support bounces and sell near resistance. Breakouts above/below levels signal momentum. Used for scalping, swing, or position trading.",
+        "implementation": "Our tools calculate pivot points dynamically. The Backtester tests bounce/breakout strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart trend",
+        "id": "coppock-curve",
+        "title": "Coppock Curve",
+        "icon": "TrendingUp",
+        "summary": "Learn how the Coppock Curve identifies long-term trend reversals using momentum.",
+        "category": "Momentum",
+        "overview": "The Coppock Curve is a momentum indicator combining weighted ROCs to signal long-term buy opportunities, primarily for monthly charts.",
+        "types": [
+            "Standard Coppock Curve (11,14 periods)"
+        ],
+        "usage": "A curve crossing above zero signals bullish reversals. Used for long-term investing or position trading in stocks or indices.",
+        "implementation": "Our tools plot the Coppock Curve. The Backtester tests long-term reversal strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart speed",
+        "id": "know-sure-thing",
+        "title": "Know Sure Thing (KST)",
+        "icon": "Gauge",
+        "summary": "Understand how KST combines multiple timeframes for momentum signals.",
+        "category": "Momentum",
+        "overview": "Know Sure Thing (KST) is a momentum oscillator combining four smoothed ROCs to identify trend direction and strength across multiple timeframes.",
+        "types": [
+            "Standard KST (10,15,20,30 periods)"
+        ],
+        "usage": "Positive KST signals bullish momentum; negative indicates bearish. Crossovers with its signal line generate buy/sell signals. Used for swing or position trading.",
+        "implementation": "Our tools adjust KST parameters. The Backtester evaluates trend-following strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart speed",
+        "id": "ultimate-oscillator",
+        "title": "Ultimate Oscillator",
+        "icon": "Gauge",
+        "summary": "Learn how the Ultimate Oscillator combines cycles to detect momentum shifts.",
+        "category": "Momentum",
+        "overview": "The Ultimate Oscillator combines short, medium, and long-term price cycles (7,14,28 periods) to identify overbought/oversold conditions and divergences.",
+        "types": [
+            "Standard Ultimate Oscillator"
+        ],
+        "usage": "Readings above 70 indicate overbought; below 30 suggest oversold. Used for reversals or divergence trading in swing or day trading.",
+        "implementation": "Our tools calculate the oscillator. The Backtester tests reversal strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart trend",
+        "id": "trix",
+        "title": "TRIX",
+        "icon": "TrendingUp",
+        "summary": "Understand how TRIX uses triple-smoothed EMAs for momentum signals.",
+        "category": "Momentum",
+        "overview": "TRIX is a momentum indicator calculating the percentage change of a triple-smoothed EMA to filter noise and identify trends.",
+        "types": [
+            "Standard TRIX (15-period)"
+        ],
+        "usage": "Positive TRIX signals bullish momentum; negative indicates bearish. Crossovers with its signal line generate buy/sell signals. Used for swing or position trading.",
+        "implementation": "Our tools adjust TRIX periods. The Backtester tests trend-following strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart network",
+        "id": "mass-index",
+        "title": "Mass Index",
+        "icon": "Network",
+        "summary": "Learn how the Mass Index detects potential reversals using volatility.",
+        "category": "Volatility",
+        "overview": "The Mass Index uses high-low price ranges over a period to identify potential reversals when volatility expands significantly.",
+        "types": [
+            "Standard Mass Index (25-period)"
+        ],
+        "usage": "A reading above 27 with a subsequent drop signals reversals. Used for swing trading or range-bound markets.",
+        "implementation": "Our tools calculate the Mass Index. The Backtester tests reversal strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart trend",
+        "id": "mcginley-dynamic",
+        "title": "McGinley Dynamic",
+        "icon": "TrendingUp",
+        "summary": "Understand how the McGinley Dynamic adjusts to market speed for trend analysis.",
+        "category": "Trend",
+        "overview": "The McGinley Dynamic is a responsive moving average that adjusts its speed based on market volatility, reducing lag compared to traditional MAs.",
+        "types": [
+            "Standard McGinley Dynamic (10-period)"
+        ],
+        "usage": "Used as dynamic support/resistance or for trend-following. Price above the line signals buys; below suggests sells. Effective in swing or position trading.",
+        "implementation": "Our tools plot the McGinley Dynamic. The Backtester tests trend strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart speed",
+        "id": "chande-momentum-oscillator",
+        "title": "Chande Momentum Oscillator (CMO)",
+        "icon": "Gauge",
+        "summary": "Learn how CMO measures pure momentum for overbought/oversold conditions.",
+        "category": "Momentum",
+        "overview": "The Chande Momentum Oscillator (CMO) measures momentum by comparing gains and losses, oscillating between -100 and +100.",
+        "types": [
+            "Standard CMO (14-period)"
+        ],
+        "usage": "Readings above +50 indicate overbought; below -50 suggest oversold. Used for reversals or trend confirmation in swing or day trading.",
+        "implementation": "Our tools calculate CMO dynamically. The Backtester tests reversal strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart trend",
+        "id": "supertrend",
+        "title": "Supertrend",
+        "icon": "TrendingUp",
+        "summary": "Learn how Supertrend identifies trends and provides dynamic stop-loss levels.",
+        "category": "Trend",
+        "overview": "Supertrend uses ATR to plot a line above/below price, indicating trend direction and stop-loss levels.",
+        "types": [
+            "Standard Supertrend (10-period, 3 multiplier)"
+        ],
+        "usage": "Price above Supertrend signals buys; below indicates sells. Used for trend-following in day, swing, or position trading with trailing stops.",
+        "implementation": "Our tools adjust ATR settings. The Backtester optimizes Supertrend strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart line",
+        "id": "trendline",
+        "title": "Trendline",
+        "icon": "LineChart",
+        "summary": "Understand how trendlines identify trend direction and dynamic support/resistance.",
+        "category": "Trend/Support/Resistance",
+        "overview": "Trendlines connect price points (higher lows in uptrends, lower highs in downtrends) to visualize trend direction and act as dynamic support/resistance.",
+        "types": [
+            "Uptrend Line",
+            "Downtrend Line"
+        ],
+        "usage": "Traders buy on uptrend line bounces, sell on downtrend line touches, or trade breaks for reversals. Used across all timeframes and markets.",
+        "implementation": "Our tools assist in drawing trendlines. The Backtester tests bounce/break strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart maximize",
+        "id": "price-channels",
+        "title": "Price Channels",
+        "icon": "Maximize",
+        "summary": "Learn how Price Channels identify trends and breakouts using price extremes.",
+        "category": "Trend",
+        "overview": "Price Channels plot the highest high and lowest low over a period to identify trend direction and breakout opportunities.",
+        "types": [
+            "Standard Price Channels (20-period)"
+        ],
+        "usage": "Price above the upper channel signals buys; below the lower channel suggests sells. Used for trend-following or breakout strategies in swing or day trading.",
+        "implementation": "Our tools adjust channel periods. The Backtester tests breakout performance."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart trend",
+        "id": "moving-average-ribbon",
+        "title": "Moving Average Ribbon",
+        "icon": "TrendingUp",
+        "summary": "Understand how the Moving Average Ribbon visualizes trends using multiple MAs.",
+        "category": "Trend",
+        "overview": "The Moving Average Ribbon plots multiple moving averages (e.g., 10, 20, 30, 50 periods) to visualize trend strength and direction.",
+        "types": [
+            "Standard MA Ribbon (multiple periods)"
+        ],
+        "usage": "Widening ribbons indicate strong trends; converging ribbons suggest consolidation. Used for trend-following in swing or position trading.",
+        "implementation": "Our tools plot MA Ribbons. The Backtester tests trend strength strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart line",
+        "id": "gann-angles",
+        "title": "Gann Angles",
+        "icon": "LineChart",
+        "summary": "Learn how Gann Angles use geometric angles for trend and support/resistance analysis.",
+        "category": "Trend/Support/Resistance",
+        "overview": "Gann Angles use geometric angles (e.g., 1x1, 2x1) drawn from price/time pivots to identify trend direction and support/resistance levels.",
+        "types": [
+            "Standard Gann Angles"
+        ],
+        "usage": "Angles act as dynamic support/resistance. Price above the 1x1 angle signals bullish trends; below suggests bearish. Used for swing or position trading.",
+        "implementation": "Our tools plot Gann Angles. The Backtester tests angle-based strategies."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart arrow up",
+        "id": "price-action-breakout",
+        "title": "Price Action Breakout",
+        "icon": "ArrowUpRight",
+        "summary": "Learn how Price Action Breakouts capitalize on significant price moves beyond key levels.",
+        "category": "Trend/Support/Resistance",
+        "overview": "Price Action Breakouts focus on trading significant price movements beyond support/resistance levels, relying solely on price action.",
+        "types": [
+            "Breakout Above Resistance",
+            "Breakout Below Support"
+        ],
+        "usage": "Traders enter long on breaks above resistance, short on breaks below support. Used for day, swing, or position trading to capture new trends.",
+        "implementation": "Our tools identify key levels. The Backtester tests breakout strategies with volume confirmation."
+    },
+    {
+        "image": "https://placehold.co/300x200.png",
+        "imageHint": "chart line",
+        "id": "support-resistance",
+        "title": "Support and Resistance (SAR)",
+        "icon": "Minus",
+        "summary": "Understand how Support and Resistance identify key price levels for reversals or breakouts.",
+        "category": "Support/Resistance",
+        "overview": "Support and Resistance (SAR) are price levels where buying (support) or selling (resistance) pressure halts or reverses price trends.",
+        "types": [
+            "Historical Levels",
+            "Round Numbers",
+            "Moving Average-Based",
+            "Trendline-Based",
+            "Fibonacci-Based"
+        ],
+        "usage": "Traders buy near support, sell near resistance, or trade breakouts. Levels strengthen with multiple tests. Used across all timeframes and markets.",
+        "implementation": "Our tools identify SAR levels using historical data or Fibonacci. The Backtester tests bounce/breakout strategies."
+    }
+]

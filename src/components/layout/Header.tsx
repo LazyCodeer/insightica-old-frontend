@@ -1,0 +1,125 @@
+"use client";
+
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import Logo from '@/components/marketing/Logo';
+import { Button } from '@/components/ui/button';
+import { Menu, X, LogOut } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+
+const baseNavLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/about', label: 'About Us' },
+  { href: '/tools', label: 'Tools' },
+  { href: '/tutorials', label: 'Tutorials' },
+];
+
+const NavLinkItem = ({ href, label, isActive, onClick, className }: { href: string, label: string, isActive: boolean, onClick?: () => void, className?: string }) => (
+  <Button variant="link" asChild 
+    className={cn(
+      "text-base px-3 py-2 hover:text-accent transition-colors", 
+      isActive ? "text-accent font-semibold" : "text-foreground/80", 
+      className
+    )}
+  >
+    <Link href={href} onClick={onClick}>{label}</Link>
+  </Button>
+);
+
+const Header = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const { currentUser, logout, loading } = useAuth();
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) { // md breakpoint
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  const handleLogout = async () => {
+    await logout();
+    closeMobileMenu();
+  };
+
+  const getNavLinks = () => {
+    if (loading) return []; 
+    if (currentUser) {
+      return [
+        ...baseNavLinks,
+        { href: '/forms/invest', label: 'Invest' },
+      ];
+    }
+    return [
+      ...baseNavLinks,
+      { href: '/forms/invest', label: 'Invest' },
+      { href: '/auth/login', label: 'Login' },
+    ];
+  };
+
+  const navLinksToDisplay = getNavLinks();
+
+  return (
+    <header className={cn(
+      "sticky top-0 z-50 w-full transition-all duration-300",
+      "bg-background/80 backdrop-blur-md shadow-lg border-b border-border/50"
+    )}>
+      <div className="container mx-auto flex h-20 items-center justify-between px-5 md:px-10">
+        <Logo />
+        <nav className="hidden md:flex items-center space-x-1">
+          {navLinksToDisplay.map((link) => (
+             <NavLinkItem key={link.href} href={link.href} label={link.label} isActive={pathname === link.href} />
+          ))}
+          {currentUser && !loading && (
+            <Button variant="ghost" onClick={handleLogout} className="text-base text-foreground/80 hover:text-accent">
+              <LogOut className="mr-2 h-4 w-4" /> Logout
+            </Button>
+          )}
+        </nav>
+        <div className="md:hidden">
+          <Button variant="ghost" size="icon" onClick={toggleMobileMenu} className="text-foreground hover:bg-accent hover:text-accent-foreground" aria-label="Toggle menu">
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
+        </div>
+      </div>
+
+      <div
+        className={cn(
+          "md:hidden w-full bg-background/90 backdrop-blur-md overflow-hidden transition-all duration-300 ease-in-out",
+          isMobileMenuOpen ? "max-h-screen opacity-100 border-t border-border/50" : "max-h-0 opacity-0" 
+        )}
+      >
+        <nav className="flex flex-col items-center space-y-1 px-4 py-6">
+          {navLinksToDisplay.map((link) => (
+            <NavLinkItem
+              key={link.href}
+              href={link.href}
+              label={link.label}
+              isActive={pathname === link.href}
+              onClick={closeMobileMenu}
+              className="w-full text-center text-lg py-3"
+            />
+          ))}
+          {currentUser && !loading && (
+            <Button variant="ghost" onClick={handleLogout} className="w-full text-lg py-3 text-foreground/80 hover:text-accent">
+               <LogOut className="mr-2 h-5 w-5" /> Logout
+            </Button>
+          )}
+        </nav>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
