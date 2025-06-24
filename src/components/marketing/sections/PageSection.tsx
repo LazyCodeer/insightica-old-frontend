@@ -10,8 +10,8 @@ interface PageSectionProps extends HTMLAttributes<HTMLElement> {
 
 const PageSection = ({ children, className, containerClassName, as: Component = 'section', ...props }: PageSectionProps) => {
   return (
-    <Component className={cn('py-16 md:py-24', className)} {...props}>
-      <div className={cn('container mx-auto px-5 md:px-10', containerClassName)}>
+    <Component className={cn('py-14 md:py-20', className)} {...props}>
+      <div className={cn('mx-auto px-5 md:px-10', containerClassName)}>
         {children}
       </div>
     </Component>

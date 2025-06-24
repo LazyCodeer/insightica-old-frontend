@@ -1,3 +1,4 @@
+
 "use client"; 
 
 import PageSection from './PageSection';
@@ -34,12 +35,12 @@ const faqItems = [
 const FaqSection = () => {
   return (
     <PageSection id="faq-section" className="bg-background/50">
-      <div className="text-center mb-12 md:mb-16">
+      <div className="text-center mb-12 md:mb-16" data-aos="fade-up">
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl text-foreground">
           Frequently Asked <span className="text-accent">Questions</span>
         </h2>
       </div>
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="200">
         <Accordion type="single" collapsible className="w-full">
           {faqItems.map((item, index) => (
             <AccordionItem key={index} value={`item-${index}`} className="border-border/50">

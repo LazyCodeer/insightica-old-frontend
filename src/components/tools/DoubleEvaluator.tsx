@@ -1,8 +1,9 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Select from 'react-select';
+import { HeatMapGrid } from 'react-grid-heatmap';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -10,15 +11,17 @@ import { Select as ShadSelect, SelectContent, SelectItem, SelectTrigger, SelectV
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 import { runDoubleAnalyzer } from '@/api/tools';
-import type { StockMetrics } from '@/api/tools';
+import type { StockMetrics, DoubleAnalyzerAPIOutput } from '@/api/tools';
 import { conditionMapIdName, tickerMap } from '@/components/tools/single/components/Mappings';
 import { METRICS } from '@/lib/constants';
 
-import { Heatmap } from '@/components/charts/Heatmap';
 import { RadarChart } from '@/components/charts/RadarChart';
 import { ChordDiagram } from '@/components/charts/ChordDiagram';
+import { BarGraph } from '@/components/charts/BarGraph';
 
 type StringSelectOption = { value: string; label: string };
 type NumberSelectOption = { value: number; label: string };
@@ -51,16 +54,72 @@ export default function DoubleEvaluator() {
   // Control states
   const [tickerSize] = useState('1d');
   const [selectedStocks, setSelectedStocks] = useState<readonly StringSelectOption[]>([stockOptions[0]]);
-  const [selectedConditions, setSelectedConditions] = useState<readonly NumberSelectOption[]>([conditionOptions[0], conditionOptions[1], conditionOptions[2]]);
+  const [fixedCondition, setFixedCondition] = useState<NumberSelectOption | null>(conditionOptions[0]);
+  const [otherConditions, setOtherConditions] = useState<readonly NumberSelectOption[]>([conditionOptions[1], conditionOptions[2]]);
   const [selectedMetric, setSelectedMetric] = useState<Metric>('sharpe_ratio');
   const [duration, setDuration] = useState<number>(30);
+  const [historyIndex, setHistoryIndex] = useState<number>(0);
   
   // Data states
-  const [analysisData, setAnalysisData] = useState<Record<string, Record<string, StockMetrics>>>({});
+  const [analysisData, setAnalysisData] = useState<DoubleAnalyzerAPIOutput>({});
+  
+  // States for Performance Analysis Tab
+  const [analysisMode, setAnalysisMode] = useState<'stock-fixed' | 'time-fixed'>('stock-fixed');
+  const [analysisStock, setAnalysisStock] = useState<StringSelectOption | null>(null);
+  const [analysisCondition1, setAnalysisCondition1] = useState<NumberSelectOption | null>(null);
+  const [analysisCondition2, setAnalysisCondition2] = useState<NumberSelectOption | null>(null);
+  const [analysisMetric, setAnalysisMetric] = useState<Metric>('sharpe_ratio');
+  const [chordStock, setChordStock] = useState<StringSelectOption | null>(null);
+
+
+  const allSelectedConditions = useMemo(() => {
+    if (!fixedCondition) return otherConditions;
+    const otherFiltered = otherConditions.filter(c => c.value !== fixedCondition.value);
+    return [fixedCondition, ...otherFiltered];
+  }, [fixedCondition, otherConditions]);
+
+  const otherConditionOptions = useMemo(() => {
+    if (!fixedCondition) return conditionOptions;
+    return conditionOptions.filter(c => c.value !== fixedCondition.value);
+  }, [fixedCondition]);
+
+  useEffect(() => {
+    if (selectedStocks.length > 0) {
+        if (!analysisStock || !selectedStocks.some(s => s.value === analysisStock.value)) {
+            setAnalysisStock(selectedStocks[0]);
+        }
+        if (!chordStock || !selectedStocks.some(s => s.value === chordStock.value)) {
+            setChordStock(selectedStocks[0]);
+        }
+    } else {
+        setAnalysisStock(null);
+        setChordStock(null);
+    }
+  }, [selectedStocks, analysisStock, chordStock]);
+
+  useEffect(() => {
+     if (allSelectedConditions.length > 0 && (!analysisCondition1 || !allSelectedConditions.some(c => c.value === analysisCondition1.value))) {
+        setAnalysisCondition1(allSelectedConditions[0]);
+    }
+    const availableConditionsForC2 = allSelectedConditions.filter(c => c.value !== analysisCondition1?.value);
+    if (availableConditionsForC2.length > 0 && (!analysisCondition2 || !availableConditionsForC2.some(c => c.value === analysisCondition2.value))) {
+        setAnalysisCondition2(availableConditionsForC2[0]);
+    } else if (availableConditionsForC2.length === 0) {
+        setAnalysisCondition2(null);
+    }
+  }, [allSelectedConditions, analysisCondition1, analysisCondition2]);
 
   const handleRunAnalysis = async () => {
-    if (selectedStocks.length === 0 || selectedConditions.length < 2) {
-      setError("Please select at least one stock and two conditions.");
+    if (selectedStocks.length === 0 || allSelectedConditions.length < 2) {
+      setError("Please select at least one stock and two conditions (one fixed, one other).");
+      return;
+    }
+     if (selectedStocks.length > 9) {
+      setError("Please select a maximum of 9 stocks.");
+      return;
+    }
+    if (otherConditions.length > 9) {
+      setError("Please select a maximum of 9 'other' conditions.");
       return;
     }
     setIsLoading(true);
@@ -70,14 +129,16 @@ export default function DoubleEvaluator() {
     try {
       const input = {
         stock_names: selectedStocks.map(s => s.value),
-        condition_ids: selectedConditions.map(c => c.value),
+        condition_ids: allSelectedConditions.map(c => c.value),
         ticker_size: tickerSize,
         duration: duration
       };
       
       const response = await runDoubleAnalyzer(input);
       setAnalysisData(response);
-
+      setAnalysisStock(selectedStocks[0]);
+      setAnalysisCondition1(allSelectedConditions[0]);
+      setAnalysisCondition2(allSelectedConditions[1] || allSelectedConditions[0]);
     } catch (err: any) {
       setError(err.response?.data?.detail || "Failed to fetch analysis data.");
     } finally {
@@ -93,50 +154,59 @@ export default function DoubleEvaluator() {
     multiValueLabel: (base: any) => ({...base, color: 'hsl(var(--secondary-foreground))'}),
   };
 
-  const getHeatmapData = () => {
-    const data: { stock: string; condition: string; value: number }[] = [];
-    const conditionIds = selectedConditions.map(c => c.value);
-    
-    selectedStocks.forEach(stock => {
-      const stockData = analysisData[stock.value];
-      if (stockData) {
-        for (let i = 0; i < conditionIds.length; i++) {
-          for (let j = i + 1; j < conditionIds.length; j++) {
-            const pairKey = getPairKey(conditionIds[i], conditionIds[j]);
-            if (stockData[pairKey] && stockData[pairKey][selectedMetric] !== undefined) {
-              const cond1Label = conditionOptions.find(c => c.value === conditionIds[i])?.label || '';
-              const cond2Label = conditionOptions.find(c => c.value === conditionIds[j])?.label || '';
-              data.push({
-                  stock: stock.label,
-                  condition: `${cond1Label.substring(0,5)} + ${cond2Label.substring(0,8)}`,
-                  value: stockData[pairKey][selectedMetric]
-              });
-            }
-          }
+  const hasData = Object.keys(analysisData).length > 0;
+
+  const getHeatmapGridData = () => {
+    if (!hasData) return null;
+
+    const historyKey = `history_${historyIndex}`;
+    const currentHistoryData = analysisData[historyKey];
+    if (!currentHistoryData) return null;
+
+    const conditionIds = allSelectedConditions.map(c => c.value);
+    const pairs = [];
+    for (let i = 0; i < conditionIds.length; i++) {
+        for (let j = i + 1; j < conditionIds.length; j++) {
+            pairs.push({ key: getPairKey(conditionIds[i], conditionIds[j]), label: `${conditionMapIdName[`c${conditionIds[i]}`]} & ${conditionMapIdName[`c${conditionIds[j]}`]}` });
         }
-      }
+    }
+
+    const xLabels = selectedStocks.map(s => s.label.replace('.NS', ''));
+    const yLabels = pairs.map(p => p.label);
+
+    const data = yLabels.map((_, i) => {
+        const pairKey = pairs[i].key;
+        return xLabels.map((_, j) => {
+            const stockName = selectedStocks[j].value;
+            const metricValue = currentHistoryData[pairKey]?.[stockName]?.[selectedMetric];
+            return typeof metricValue === 'number' ? parseFloat(metricValue.toFixed(2)) : 0;
+        });
     });
-    return data;
+
+    return { xLabels, yLabels, data };
   }
 
   const getRadarData = () => {
-    if (selectedStocks.length === 0) return [];
-    const stock = selectedStocks[0];
-    const stockData = analysisData[stock.value];
-    if (!stockData) return [];
+    if (selectedStocks.length === 0 || !hasData) return [];
+    
+    const historyKey = `history_${historyIndex}`;
+    const currentHistoryData = analysisData[historyKey];
+    if (!currentHistoryData) return [];
 
+    const stock = selectedStocks[0];
     const data: any[] = [];
-    const conditionIds = selectedConditions.map(c => c.value);
+    const conditionIds = allSelectedConditions.map(c => c.value);
 
     for (let i = 0; i < conditionIds.length; i++) {
       for (let j = i + 1; j < conditionIds.length; j++) {
         const pairKey = getPairKey(conditionIds[i], conditionIds[j]);
-        if (stockData[pairKey]) {
+        const stockMetrics = currentHistoryData[pairKey]?.[stock.value];
+        if (stockMetrics) {
           const cond1Label = conditionOptions.find(c => c.value === conditionIds[i])?.label || '';
           const cond2Label = conditionOptions.find(c => c.value === conditionIds[j])?.label || '';
           data.push({
               condition: `${cond1Label.substring(0,10)} & ${cond2Label.substring(0,10)}`,
-              ...stockData[pairKey]
+              ...stockMetrics
           });
         }
       }
@@ -145,22 +215,29 @@ export default function DoubleEvaluator() {
   }
   
   const getChordData = () => {
-      if (selectedStocks.length === 0 || selectedConditions.length < 3) return undefined;
-      const stock = selectedStocks[0];
-      const stockData = analysisData[stock.value];
-      if (!stockData) return undefined;
+      if (!chordStock || allSelectedConditions.length < 3 || allSelectedConditions.length > 6 || !hasData) return undefined;
       
-      const conditions = selectedConditions;
+      const historyKey = `history_${historyIndex}`;
+      const currentHistoryData = analysisData[historyKey];
+      if (!currentHistoryData) return undefined;
+      
+      const stock = chordStock;
+      
+      const conditions = allSelectedConditions;
       const matrix: number[][] = Array(conditions.length).fill(0).map(() => Array(conditions.length).fill(0));
       const names = conditions.map(c => c.label);
 
       for (let i = 0; i < conditions.length; i++) {
           for (let j = i; j < conditions.length; j++) {
-              if (i === j) continue;
+              if (i === j) {
+                matrix[i][j] = 0;
+                continue;
+              };
               const pairKey = getPairKey(conditions[i].value, conditions[j].value);
               let value = 0;
-              if (stockData[pairKey] && stockData[pairKey][selectedMetric] !== undefined) {
-                  value = stockData[pairKey][selectedMetric];
+              const stockMetrics = currentHistoryData[pairKey]?.[stock.value];
+              if (stockMetrics && stockMetrics[selectedMetric] !== undefined) {
+                  value = stockMetrics[selectedMetric];
               }
               matrix[i][j] = Math.max(0, value); 
               matrix[j][i] = Math.max(0, value);
@@ -169,6 +246,74 @@ export default function DoubleEvaluator() {
       return { matrix, names };
   }
 
+  const getStockFixedData = () => {
+    if (!hasData || !analysisCondition1 || !analysisCondition2 || !analysisStock) return [];
+    
+    const data: { history: string; value: number }[] = [];
+    const pairKey = getPairKey(analysisCondition1.value, analysisCondition2.value);
+    const stockName = analysisStock.value;
+
+    for (let i = 0; i < 100; i++) {
+        const historyKey = `history_${i}`;
+        const metricValue = analysisData[historyKey]?.[pairKey]?.[stockName]?.[analysisMetric];
+        data.push({
+            history: `H ${i}`,
+            value: typeof metricValue === 'number' ? metricValue : 0,
+        });
+    }
+    return data;
+  };
+  
+  const getTimeFixedData = () => {
+    if (!hasData || !analysisCondition1 || !analysisCondition2 || selectedStocks.length === 0) return [];
+
+    const historyKey = `history_${historyIndex}`;
+    const currentHistoryData = analysisData[historyKey];
+    if (!currentHistoryData) return [];
+    
+    const pairKey = getPairKey(analysisCondition1.value, analysisCondition2.value);
+
+    return selectedStocks.map(stock => {
+        const metricValue = currentHistoryData[pairKey]?.[stock.value]?.[analysisMetric];
+        return {
+            stock: stock.label.replace('.NS', ''),
+            value: typeof metricValue === 'number' ? metricValue : 0,
+        };
+    });
+  };
+
+  const radarChartRadars = METRICS.map((metric, index) => ({
+      name: metric.label,
+      dataKey: metric.key,
+      stroke: `hsl(var(--chart-${(index % 5) + 1}))`,
+      fill: `hsl(var(--chart-${(index % 5) + 1}))`,
+  }));
+
+  const radarData = getRadarData();
+
+  const radarDomain = useMemo(() => {
+    if (radarData.length === 0) return [-1, 1];
+
+    let minVal = Infinity;
+    let maxVal = -Infinity;
+
+    radarData.forEach(item => {
+        radarChartRadars.forEach(radar => {
+            const value = item[radar.dataKey];
+            if (typeof value === 'number') {
+                if (value < minVal) minVal = value;
+                if (value > maxVal) maxVal = value;
+            }
+        });
+    });
+    
+    if (minVal === Infinity || maxVal === -Infinity) return [-1, 1];
+
+    const padding = Math.abs(maxVal - minVal) * 0.1 || 1;
+    
+    return [Math.floor(minVal - padding), Math.ceil(maxVal + padding)];
+  }, [radarData, radarChartRadars]);
+
   return (
     <Card>
       <CardHeader>
@@ -176,14 +321,21 @@ export default function DoubleEvaluator() {
         <CardDescription>Analyze the historical performance of condition pairs across stocks and metrics.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border rounded-lg mb-6">
             <div className="space-y-2">
-                <Label>Stocks (Select 1 for Radar/Chord)</Label>
+                <Label>Stocks (Max 9)</Label>
                 <Select isMulti options={stockOptions} value={selectedStocks} onChange={(o) => setSelectedStocks(o as readonly StringSelectOption[])} styles={reactSelectStyles}/>
             </div>
             <div className="space-y-2">
-                <Label>Conditions (Min 2)</Label>
-                <Select isMulti options={conditionOptions} value={selectedConditions} onChange={(o) => setSelectedConditions(o as readonly NumberSelectOption[])} styles={reactSelectStyles}/>
+                <Label>Fixed Condition</Label>
+                <ShadSelect value={String(fixedCondition?.value)} onValueChange={v => setFixedCondition(conditionOptions.find(c => c.value === parseInt(v)) || null)}>
+                    <SelectTrigger><SelectValue placeholder="Select a fixed condition" /></SelectTrigger>
+                    <SelectContent>{conditionOptions.map(opt => <SelectItem key={opt.value} value={String(opt.value)}>{opt.label}</SelectItem>)}</SelectContent>
+                </ShadSelect>
+            </div>
+             <div className="space-y-2">
+                <Label>Other Conditions (Max 9)</Label>
+                <Select isMulti options={otherConditionOptions} value={otherConditions} onChange={(o) => setOtherConditions(o as readonly NumberSelectOption[])} styles={reactSelectStyles}/>
             </div>
             <div className="space-y-2">
                 <Label>Metric</Label>
@@ -201,21 +353,54 @@ export default function DoubleEvaluator() {
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             Run Analysis
         </Button>
+         <div className="space-y-2 mb-6 p-4 border rounded-lg">
+            <Label>History Point: {historyIndex}</Label>
+            <Slider 
+                value={[historyIndex]} 
+                onValueChange={(v) => setHistoryIndex(v[0])} 
+                max={99} 
+                step={1} 
+                disabled={!hasData || isLoading}
+            />
+        </div>
         {error && <p className="text-sm font-medium text-destructive text-center mb-4">{error}</p>}
 
         <Tabs defaultValue="heatmap" className="w-full">
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 gap-1 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 gap-1 h-auto p-1">
             <TabsTrigger value="heatmap">Heatmap</TabsTrigger>
             <TabsTrigger value="radar">Metrics Overview</TabsTrigger>
+            <TabsTrigger value="analysis">Performance Analysis</TabsTrigger>
             <TabsTrigger value="chord">Pairwise Synergy</TabsTrigger>
           </TabsList>
           
           <TabsContent value="heatmap">
             <Card className="mt-4">
-              <CardHeader><CardTitle>Pairwise Heatmap</CardTitle><CardDescription>Performance of condition pairs across stocks.</CardDescription></CardHeader>
+              <CardHeader><CardTitle>Pairwise Heatmap</CardTitle><CardDescription>Performance of condition pairs across stocks for the selected metric and history point.</CardDescription></CardHeader>
               <CardContent>
                 {isLoading ? <div className="flex justify-center items-center h-80"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : 
-                  getHeatmapData().length > 0 ? <Heatmap data={getHeatmapData()} xAxisKey="stock" yAxisKey="condition" valueKey="value" /> : <div className="text-center h-80 flex items-center justify-center text-muted-foreground">No data to display. Run an analysis.</div>
+                  (() => {
+                    const heatmapData = getHeatmapGridData();
+                    return heatmapData ? (
+                      <div className="w-full overflow-x-auto p-1">
+                        <div className="min-w-[1200px]">
+                            <HeatMapGrid
+                            data={heatmapData.data}
+                            xLabels={heatmapData.xLabels}
+                            yLabels={heatmapData.yLabels}
+                            cellRender={(_x, _y, value) => <div title={`Value: ${value}`}>{value}</div>}
+                            xLabelsStyle={() => ({ color: 'hsl(var(--muted-foreground))', fontSize: '.8rem' })}
+                            yLabelsStyle={() => ({ color: 'hsl(var(--muted-foreground))', fontSize: '.8rem', textTransform: 'capitalize', whiteSpace: 'nowrap' })}
+                            cellStyle={(_x, _y, ratio) => ({ background: `hsl(220, 90%, ${75 - 50 * ratio}%)`, fontSize: '12px', color: ratio > 0.5 ? '#fff' : 'hsl(var(--foreground))', border: '1px solid hsl(var(--border))' })}
+                            cellHeight="2rem"
+                            xLabelsPos="bottom"
+                            square={false}
+                            />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center h-80 flex items-center justify-center text-muted-foreground">No data to display. Run an analysis.</div>
+                    );
+                  })()
                 }
               </CardContent>
             </Card>
@@ -226,20 +411,113 @@ export default function DoubleEvaluator() {
               <CardHeader><CardTitle>Pair Metrics Overview</CardTitle><CardDescription>Holistic view of all metrics for selected pairs on the first selected stock.</CardDescription></CardHeader>
               <CardContent>
                 {isLoading ? <div className="flex justify-center items-center h-80"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : 
-                  getRadarData().length > 0 ?
-                  <RadarChart data={getRadarData()} angleKey="condition" domain={[-2.5, 5]} radars={[ { name: 'Sharpe Ratio', dataKey: 'sharpe_ratio', stroke: 'hsl(var(--chart-1))', fill: 'hsl(var(--chart-1))' }, { name: 'Total Return', dataKey: 'total_return', stroke: 'hsl(var(--chart-2))', fill: 'hsl(var(--chart-2))' }, { name: 'Winning %', dataKey: 'winning_percentage', stroke: 'hsl(var(--chart-3))', fill: 'hsl(var(--chart-3))' } ]}/>
+                  radarData.length > 0 ?
+                  <RadarChart 
+                    data={radarData}
+                    angleKey="condition"
+                    domain={radarDomain}
+                    radars={radarChartRadars}
+                  />
                   : <div className="text-center h-80 flex items-center justify-center text-muted-foreground">Select one stock to view Radar. Run an analysis.</div>
                 }
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+           <TabsContent value="analysis">
+            <Card className="mt-4">
+              <CardHeader>
+                  <CardTitle>Performance Analysis</CardTitle>
+                  <CardDescription>Analyze condition pair performance over time or across different stocks.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 p-4 border rounded-lg mb-6 items-end">
+                      <div className="space-y-2">
+                          <Label>Analysis Mode</Label>
+                          <RadioGroup defaultValue="stock-fixed" value={analysisMode} onValueChange={(v) => setAnalysisMode(v as any)} className="flex space-x-4">
+                              <div className="flex items-center space-x-2"><RadioGroupItem value="stock-fixed" id="d-stock-fixed" /><Label htmlFor="d-stock-fixed" className="font-normal">Stock Fixed</Label></div>
+                              <div className="flex items-center space-x-2"><RadioGroupItem value="time-fixed" id="d-time-fixed" /><Label htmlFor="d-time-fixed" className="font-normal">Time Fixed</Label></div>
+                          </RadioGroup>
+                      </div>
+
+                      {analysisMode === 'stock-fixed' && (
+                          <div className="space-y-2">
+                              <Label>Stock</Label>
+                              <ShadSelect value={analysisStock?.value} onValueChange={v => setAnalysisStock(selectedStocks.find(s => s.value === v) || null)} disabled={!hasData}>
+                                  <SelectTrigger><SelectValue placeholder="Select a stock" /></SelectTrigger>
+                                  <SelectContent>{selectedStocks.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
+                              </ShadSelect>
+                          </div>
+                      )}
+
+                      <div className="space-y-2">
+                          <Label>Condition 1</Label>
+                          <ShadSelect value={String(analysisCondition1?.value)} onValueChange={v => setAnalysisCondition1(allSelectedConditions.find(c => c.value === parseInt(v)) || null)} disabled={!hasData}>
+                              <SelectTrigger><SelectValue placeholder="Select condition 1" /></SelectTrigger>
+                              <SelectContent>{allSelectedConditions.map(opt => <SelectItem key={opt.value} value={String(opt.value)}>{opt.label}</SelectItem>)}</SelectContent>
+                          </ShadSelect>
+                      </div>
+                       <div className="space-y-2">
+                          <Label>Condition 2</Label>
+                          <ShadSelect value={String(analysisCondition2?.value)} onValueChange={v => setAnalysisCondition2(allSelectedConditions.find(c => c.value === parseInt(v)) || null)} disabled={!hasData || !analysisCondition1}>
+                              <SelectTrigger><SelectValue placeholder="Select condition 2" /></SelectTrigger>
+                              <SelectContent>{allSelectedConditions.filter(c => c.value !== analysisCondition1?.value).map(opt => <SelectItem key={opt.value} value={String(opt.value)}>{opt.label}</SelectItem>)}</SelectContent>
+                          </ShadSelect>
+                      </div>
+                      <div className="space-y-2">
+                          <Label>Metric</Label>
+                          <ShadSelect value={analysisMetric} onValueChange={(v) => setAnalysisMetric(v as Metric)} disabled={!hasData}>
+                              <SelectTrigger><SelectValue placeholder="Select a metric" /></SelectTrigger>
+                              <SelectContent>{metricOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
+                          </ShadSelect>
+                      </div>
+                  </div>
+                  <div className="min-h-[400px]">
+                  {isLoading ? <div className="flex justify-center items-center h-80"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : 
+                  !hasData ? <div className="text-center h-80 flex items-center justify-center text-muted-foreground">No data to display. Run an analysis.</div> :
+                  analysisMode === 'stock-fixed' ? (
+                      <div className="w-full overflow-x-auto">
+                        <div className="min-w-[1500px] h-[400px]">
+                           <BarGraph data={getStockFixedData()} xAxisKey="history" yAxisKey="value" />
+                        </div>
+                      </div>
+                  ) : (
+                      <BarGraph data={getTimeFixedData()} xAxisKey="stock" yAxisKey="value" />
+                  )
+                  }
+                  </div>
               </CardContent>
             </Card>
           </TabsContent>
           
           <TabsContent value="chord">
             <Card className="mt-4">
-              <CardHeader><CardTitle>Pairwise Synergy</CardTitle><CardDescription>Visualize performance synergy between conditions for the first selected stock.</CardDescription></CardHeader>
+              <CardHeader>
+                <CardTitle>Pairwise Synergy</CardTitle>
+                <CardDescription>Visualize performance synergy between conditions for a selected stock (3-6 conditions needed).</CardDescription>
+              </CardHeader>
               <CardContent>
+                <div className="mb-4 max-w-xs">
+                    <Label>Select Stock for Chord Diagram</Label>
+                    <ShadSelect
+                        value={chordStock?.value}
+                        onValueChange={(value) => {
+                            setChordStock(selectedStocks.find(s => s.value === value) || null);
+                        }}
+                        disabled={selectedStocks.length === 0 || isLoading}
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a stock" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {selectedStocks.map(opt => (
+                                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </ShadSelect>
+                </div>
                 {isLoading ? <div className="flex justify-center items-center h-80"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> :
-                  getChordData() ? <ChordDiagram data={getChordData()} /> : <div className="text-center h-80 flex items-center justify-center text-muted-foreground">Select 3-6 conditions and one stock for Chord diagram. Run analysis.</div>
+                  <ChordDiagram data={getChordData()} />
                 }
               </CardContent>
             </Card>

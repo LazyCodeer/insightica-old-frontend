@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
@@ -12,9 +13,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Link from 'next/link';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, Loader2 } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
+import { submitInvestmentInterest } from "@/api/user";
+import type { InvestmentInterestPayload } from "@/api/user";
 
 const InvestFormSchema = z.object({
   name: z.string().min(1, "Full name is required."),
@@ -56,6 +60,9 @@ const defaultValues: Partial<InvestFormValues> = {
 };
 
 export default function InvestPage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
   const form = useForm<InvestFormValues>({
     resolver: zodResolver(InvestFormSchema),
     defaultValues,
@@ -66,10 +73,33 @@ export default function InvestPage() {
   const watchSource = form.watch("source");
   const watchInterest = form.watch("interest");
 
-  function onSubmit(data: InvestFormValues) {
-    console.log(data);
-    alert("Thank you for your interest in investing in Insightica!");
-    form.reset();
+  async function onSubmit(data: InvestFormValues) {
+    setIsLoading(true);
+    try {
+      // The backend expects `source` and `interest` as JSON, but the form provides strings.
+      // We will pass them as is, assuming the backend can handle simple string values in JSONFields.
+      // If the backend strictly requires an array, this would need to be `source: data.source ? [data.source] : []`
+      const payload: InvestmentInterestPayload = {
+        ...data,
+        source: data.source || null,
+        interest: data.interest || null,
+      };
+
+      await submitInvestmentInterest(payload);
+      toast({
+        title: "Inquiry Submitted!",
+        description: "Thank you for your interest. We will be in touch with you shortly.",
+      });
+      form.reset();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description: error.message || "An unknown error occurred. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -77,7 +107,7 @@ export default function InvestPage() {
       <Header />
       <main className="flex-grow">
         <PageSection>
-          <div className="max-w-2xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto text-center">
             <Briefcase className="mx-auto h-12 w-12 text-accent mb-4" />
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-foreground">
               Invest in <span className="text-accent">Insightica</span>
@@ -87,7 +117,7 @@ export default function InvestPage() {
             </p>
           </div>
           
-          <Card className="max-w-xl mx-auto mt-12 bg-card/80 border-border/50">
+          <Card className="max-w-4xl mx-auto mt-12 bg-card/80 border-border/50">
             <CardHeader>
               <CardTitle className="text-2xl text-center text-card-foreground">Investor Inquiry</CardTitle>
             </CardHeader>
@@ -279,8 +309,9 @@ export default function InvestPage() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                    Submit Inquiry
+                  <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isLoading ? 'Submitting...' : 'Submit Inquiry'}
                   </Button>
                 </form>
               </FormProvider>

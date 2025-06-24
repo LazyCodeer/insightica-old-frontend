@@ -100,62 +100,41 @@ interface SingleAnalyzerInput {
 
 // The API response body is the historical data.
 type HistoricalData = Record<string, Record<string, Record<string, StockMetrics>>>;
-type SingleAnalyzerAPIOutput = HistoricalData;
+export type SingleAnalyzerAPIOutput = HistoricalData;
 
 // This is the processed data the component will use. Maps stock name to condition metrics.
 export type ProcessedSingleAnalyzerOutput = Record<string, Record<string, StockMetrics>>;
 
 
-export const runSingleAnalyzer = async (input: SingleAnalyzerInput): Promise<ProcessedSingleAnalyzerOutput> => {
-  const response = await apiClient.post<SingleAnalyzerAPIOutput>('/tools/single_condition_analyzer/', input);
+export const runSingleAnalyzer = async (input: SingleAnalyzerInput): Promise<SingleAnalyzerAPIOutput> => {
+  const response = await apiClient.post('/tools/single_condition_analyzer/', input);
   const historicalData = response.data;
-  
-  const processedData: ProcessedSingleAnalyzerOutput = {};
-  
-  const historyKeys = Object.keys(historicalData);
-  
-  if (historyKeys.length === 0) {
+
+  if (!historicalData || typeof historicalData !== 'object') {
     return {};
   }
 
-  // Initialize processedData structure and sum metrics from all history entries
-  input.stock_names.forEach(stockName => {
-    processedData[stockName] = {};
-    input.condition_ids.forEach(conditionId => {
-      const totals: StockMetrics & { count: number } = {
-        sharpe_ratio: 0, profitable_trades: 0, loss_trades: 0, total_return: 0,
-        avg_daily_return: 0, max_drawdown: 0, winning_percentage: 0, count: 0,
-      };
+  const processedData: SingleAnalyzerAPIOutput = {};
 
-      const conditionKey = `condition_${conditionId}`;
-
-      historyKeys.forEach(historyKey => {
-        const metrics = historicalData[historyKey]?.[conditionKey]?.[stockName];
-        if (metrics) {
-          totals.count++;
-          totals.sharpe_ratio += metrics.sharpe_ratio;
-          totals.profitable_trades += metrics.profitable_trades;
-          totals.loss_trades += metrics.loss_trades;
-          totals.total_return += metrics.total_return;
-          totals.avg_daily_return += metrics.avg_daily_return;
-          totals.max_drawdown += metrics.max_drawdown;
-          totals.winning_percentage += metrics.winning_percentage;
-        }
-      });
-      
-      // Average the metrics
-      if (totals.count > 0) {
-        processedData[stockName][String(conditionId)] = {
-          sharpe_ratio: totals.sharpe_ratio / totals.count,
-          profitable_trades: totals.profitable_trades / totals.count,
-          loss_trades: totals.loss_trades / totals.count,
-          total_return: totals.total_return / totals.count,
-          avg_daily_return: totals.avg_daily_return / totals.count,
-          max_drawdown: totals.max_drawdown / totals.count,
-          winning_percentage: totals.winning_percentage / totals.count,
-        };
-      }
-    });
+  Object.keys(historicalData).forEach(historyKey => {
+    const conditionData = historicalData[historyKey];
+    processedData[historyKey] = {};
+    
+    if (conditionData && typeof conditionData === 'object') {
+        Object.keys(conditionData).forEach(backendConditionKey => {
+            // Assuming backend key is 'condition_1', 'condition_2', etc.
+            // We transform it to 'c1', 'c2' for frontend consistency.
+            const match = backendConditionKey.match(/^condition_(\d+)$/);
+            if (match && match[1]) {
+                const conditionId = match[1];
+                const frontendConditionKey = `c${conditionId}`;
+                processedData[historyKey][frontendConditionKey] = conditionData[backendConditionKey];
+            } else {
+                 // If it doesn't match the pattern (e.g., already 'c1'), pass it through.
+                 processedData[historyKey][backendConditionKey] = conditionData[backendConditionKey];
+            }
+        });
+    }
   });
 
   return processedData;
@@ -171,73 +150,41 @@ interface DoubleAnalyzerInput {
 }
 
 // The API response body for double analyzer is also historical data.
-type DoubleAnalyzerAPIOutput = HistoricalData;
+export type DoubleAnalyzerAPIOutput = HistoricalData;
 
-// This is the processed data the component will use. Maps stock name to condition pair metrics.
-export type ProcessedDoubleAnalyzerOutput = Record<string, Record<string, StockMetrics>>;
+// This is the processed data the component will use. It contains the full history.
+export type ProcessedDoubleAnalyzerOutput = DoubleAnalyzerAPIOutput;
 
 export const runDoubleAnalyzer = async (input: DoubleAnalyzerInput): Promise<ProcessedDoubleAnalyzerOutput> => {
   const response = await apiClient.post<DoubleAnalyzerAPIOutput>('/tools/double_condition_analyzer/', input);
   const historicalData = response.data;
   
-  const processedData: ProcessedDoubleAnalyzerOutput = {};
-  const historyKeys = Object.keys(historicalData);
-  
-  if (historyKeys.length === 0) {
+  if (!historicalData || typeof historicalData !== 'object') {
     return {};
   }
   
-  const conditionPairs: { backendKey: string; frontendKey: string }[] = [];
-  for (let i = 0; i < input.condition_ids.length; i++) {
-    for (let j = i + 1; j < input.condition_ids.length; j++) {
-      const id1 = input.condition_ids[i];
-      const id2 = input.condition_ids[j];
-      const minId = Math.min(id1, id2);
-      const maxId = Math.max(id1, id2);
-      // Backend returns keys like `condition_1_2`
-      conditionPairs.push({
-          backendKey: `condition_${minId}_${maxId}`,
-          frontendKey: `${minId}-${maxId}`
-      });
-    }
-  }
+  const processedData: ProcessedDoubleAnalyzerOutput = {};
 
-  // Initialize processedData structure and sum metrics from all history entries
-  input.stock_names.forEach(stockName => {
-    processedData[stockName] = {};
-    conditionPairs.forEach(({ backendKey, frontendKey }) => {
-      const totals: StockMetrics & { count: number } = {
-        sharpe_ratio: 0, profitable_trades: 0, loss_trades: 0, total_return: 0,
-        avg_daily_return: 0, max_drawdown: 0, winning_percentage: 0, count: 0,
-      };
-
-      historyKeys.forEach(historyKey => {
-        const metrics = historicalData[historyKey]?.[backendKey]?.[stockName];
-        if (metrics) {
-          totals.count++;
-          totals.sharpe_ratio += metrics.sharpe_ratio;
-          totals.profitable_trades += metrics.profitable_trades;
-          totals.loss_trades += metrics.loss_trades;
-          totals.total_return += metrics.total_return;
-          totals.avg_daily_return += metrics.avg_daily_return;
-          totals.max_drawdown += metrics.max_drawdown;
-          totals.winning_percentage += metrics.winning_percentage;
+  Object.keys(historicalData).forEach(historyKey => {
+    const conditionDataForHistory = historicalData[historyKey];
+    processedData[historyKey] = {};
+    
+    if (conditionDataForHistory && typeof conditionDataForHistory === 'object') {
+      Object.keys(conditionDataForHistory).forEach(backendConditionPairKey => {
+        const stockDataForCondition = conditionDataForHistory[backendConditionPairKey];
+        // backendConditionPairKey from API is `condition_1_2`
+        // We need to transform it to `1-2` for the component to use with `getPairKey`.
+        const match = backendConditionPairKey.match(/^condition_(\d+)_(\d+)$/);
+        if (match && match[1] && match[2]) {
+          const id1 = parseInt(match[1]);
+          const id2 = parseInt(match[2]);
+          const frontendKey = `${Math.min(id1, id2)}-${Math.max(id1, id2)}`;
+          processedData[historyKey][frontendKey] = stockDataForCondition;
+        } else {
+          processedData[historyKey][backendConditionPairKey] = stockDataForCondition;
         }
       });
-      
-      // Average the metrics
-      if (totals.count > 0) {
-        processedData[stockName][frontendKey] = {
-          sharpe_ratio: totals.sharpe_ratio / totals.count,
-          profitable_trades: totals.profitable_trades / totals.count,
-          loss_trades: totals.loss_trades / totals.count,
-          total_return: totals.total_return / totals.count,
-          avg_daily_return: totals.avg_daily_return / totals.count,
-          max_drawdown: totals.max_drawdown / totals.count,
-          winning_percentage: totals.winning_percentage / totals.count,
-        };
-      }
-    });
+    }
   });
 
   return processedData;

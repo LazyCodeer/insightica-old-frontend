@@ -1,3 +1,4 @@
+
 import PageSection from './PageSection';
 import BenefitCard from '../BenefitCard';
 import { Presentation, BrainCircuit, UserCheck } from 'lucide-react';
@@ -23,7 +24,7 @@ const coreBenefits = [
 const ValuePropositionSection = () => {
   return (
     <PageSection>
-      <div className="text-center mb-12 md:mb-16">
+      <div className="text-center mb-12 md:mb-16" data-aos="fade-up">
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl text-foreground">
           Gain Your <span className="text-accent">Edge</span> with Insightica
         </h2>
@@ -32,8 +33,10 @@ const ValuePropositionSection = () => {
         </p>
       </div>
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-        {coreBenefits.map((benefit) => (
-          <BenefitCard key={benefit.title} {...benefit} />
+        {coreBenefits.map((benefit, index) => (
+          <div key={benefit.title} data-aos="fade-up" data-aos-delay={index * 100}>
+            <BenefitCard {...benefit} />
+          </div>
         ))}
       </div>
     </PageSection>

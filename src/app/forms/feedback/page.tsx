@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
@@ -16,7 +17,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Link from 'next/link';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Loader2 } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
+import { submitUserFeedback } from '@/api/user';
+import type { UserFeedbackPayload } from '@/api/user';
+
 
 const professionOptions = [
   { id: "Student", label: "Student" },
@@ -155,6 +160,9 @@ const defaultValues: Partial<FeedbackFormValues> = {
 };
 
 export default function FeedbackPage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
   const form = useForm<FeedbackFormValues>({
     resolver: zodResolver(FeedbackFormSchema),
     defaultValues,
@@ -170,10 +178,61 @@ export default function FeedbackPage() {
   const watchNewFeature = form.watch("new_feature");
   const watchFollowUpCall = form.watch("follow_up_call");
 
-  function onSubmit(data: FeedbackFormValues) {
-    console.log(data);
-    alert("Thank you for your valuable feedback!");
-    form.reset();
+  async function onSubmit(data: FeedbackFormValues) {
+    setIsLoading(true);
+    
+    const payload: UserFeedbackPayload = {
+      name: data.name,
+      email: data.email,
+      profession: data.profession,
+      profession_other: data.profession_other,
+      source: data.source,
+      source_other: data.source_other,
+      tools: data.tools_tried,
+      usage_frequency: data.usage_frequency,
+      motivation: data.motivation,
+      motivation_other: data.motivation_other,
+      primary_trading_goal: data.primary_trading_goals,
+      primary_trading_goal_other: data.primary_trading_goals_other,
+      other_tools_platforms_methods: data.other_tools_used,
+      experience_rating: data.experience_rating ? parseInt(data.experience_rating, 10) : undefined,
+      platform_feel: data.platform_feel,
+      learning_curve: data.learning_curve,
+      helpful_visual: data.helpful_visual,
+      polished_part: data.polished_part,
+      clunky_parts: data.clunky_parts,
+      one_word: data.one_word_description,
+      market_participant: data.market_participant,
+      understand_indicators: data.understand_indicators,
+      understand_how: data.understand_how,
+      discovered_patterns: data.discovered_patterns,
+      patterns_details: data.patterns_details,
+      trade_results: data.trade_results,
+      recommend_likelihood: data.recommend_likelihood ? parseInt(data.recommend_likelihood, 10) : undefined,
+      new_feature: data.new_feature,
+      new_feature_other: data.new_feature_other,
+      best_suited: data.best_suited_for,
+      follow_up: data.follow_up_call,
+      follow_up_contact: data.follow_up_contact,
+      final_thoughts: data.final_thoughts,
+    };
+    
+    try {
+      await submitUserFeedback(payload);
+      toast({
+        title: "Feedback Submitted!",
+        description: "Thank you for your valuable input. We appreciate you taking the time to help us improve.",
+      });
+      form.reset();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description: error.message || "An unknown error occurred. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -181,17 +240,17 @@ export default function FeedbackPage() {
       <Header />
       <main className="flex-grow">
         <PageSection>
-          <div className="max-w-2xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto text-center">
             <MessageSquare className="mx-auto h-12 w-12 text-accent mb-4" />
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-foreground">
-              User <span className="text-accent">Feedback</span>
+              Your <span className="text-accent">Feedback</span>
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
               Your experience and insights are invaluable to us. Please share your thoughts to help us improve Insightica.
             </p>
           </div>
           
-          <Card className="max-w-2xl mx-auto mt-12 bg-card/80 border-border/50">
+          <Card className="max-w-4xl mx-auto mt-12 bg-card/80 border-border/50">
             <CardHeader>
               <CardTitle className="text-2xl text-center text-card-foreground">Feedback Form</CardTitle>
             </CardHeader>
@@ -546,8 +605,9 @@ export default function FeedbackPage() {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-3">
-                    Submit Feedback
+                  <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-3" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isLoading ? "Submitting..." : "Submit Feedback"}
                   </Button>
                 </form>
               </FormProvider>

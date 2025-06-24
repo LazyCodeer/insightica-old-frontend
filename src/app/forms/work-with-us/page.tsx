@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
@@ -16,10 +17,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Link from 'next/link';
-import { FileText } from 'lucide-react';
+import { FileText, Loader2 } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
+import { submitWorkWithUsForm } from "@/api/user";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_FILE_TYPES = ["application/pdf"];
+const ACCEPTED_FILE_TYPES = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
 
 const skillOptions = [
   { id: "Software Development", label: "Software Development" },
@@ -33,7 +36,7 @@ const skillOptions = [
 
 const WorkWithUsFormSchema = z.object({
   name: z.string().min(1, "Full name is required."),
-  email: z.string().email("Invalid email address.").min(1, "Email address is required."),
+  email: z.string().email("Invalid email address.").min(1, "Email is required."),
   linkedin: z.string().url("Please enter a valid URL.").optional().or(z.literal("")),
   role: z.enum(["Developer", "Data Scientist", "Designer", "Product Manager", "Marketing", "Other"], {
     required_error: "Please select the role you are interested in.",
@@ -49,34 +52,35 @@ const WorkWithUsFormSchema = z.object({
     required_error: "Please select your years of professional experience.",
   }),
   resume: z.any()
-    .refine((files) => files?.length === 1 ? files?.[0]?.size <= MAX_FILE_SIZE : true, `Max file size is 5MB.`)
+    .refine((files) => files && files?.length > 0, "Resume is required.")
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
     .refine(
-      (files) => files?.length === 1 ? ACCEPTED_FILE_TYPES.includes(files?.[0]?.type) : true,
-      "Only .pdf files are accepted."
-    ).optional(),
-  used_tools: z.enum([
+      (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
+      "Only .pdf, .doc, .docx files are accepted."
+    ),
+  product_familiarity: z.enum([
     "Yes - I've used them extensively", 
     "Yes - I've tried them briefly", 
     "No - but I've researched them", 
     "No - this would be my first exposure"
   ], { required_error: "Please select your familiarity with our tools." }),
-  tools_experience: z.string().optional(),
-  unique_contribution: z.string().min(1, "This field is required."),
-  availability: z.enum([
+  tool_feedback: z.string().optional(),
+  unique_skills_perspective: z.string().min(1, "This field is required."),
+  start_availability: z.enum([
     "Available immediately", 
     "Available within 1 month", 
     "Available in 1-3 months", 
     "Available in 3-6 months", 
     "Timeline is flexible"
   ], { required_error: "Please select your availability."}),
-  follow_up: z.enum([
+  interview_interest: z.enum([
     "Yes, absolutely", 
     "Yes, but prefer initial phone/video screening", 
     "Maybe - depends on the role details", 
     "Not at this time",
     ""
   ]).optional(),
-  follow_up_contact: z.enum([
+  contact_preference: z.enum([
     "Email", 
     "Phone call", 
     "Video call (Zoom/Meet)", 
@@ -93,13 +97,13 @@ const WorkWithUsFormSchema = z.object({
   message: "Please specify if 'Other' skill is selected.",
   path: ["skills_other"],
 })
-.refine(data => !data.used_tools?.startsWith("Yes") || (!!data.tools_experience && data.tools_experience.length > 0) || !data.used_tools , {
+.refine(data => !data.product_familiarity?.startsWith("Yes") || (!!data.tool_feedback && data.tool_feedback.length > 0) || !data.product_familiarity , {
   message: "Please share your feedback if you've used our tools.",
-  path: ["tools_experience"],
+  path: ["tool_feedback"],
 })
-.refine(data => !data.follow_up?.startsWith("Yes") || (!!data.follow_up_contact && data.follow_up_contact.length > 0) || !data.follow_up, {
+.refine(data => !data.interview_interest?.startsWith("Yes") || (!!data.contact_preference && data.contact_preference.length > 0) || !data.interview_interest, {
     message: "Please specify your preferred contact method if interested in interviews.",
-    path: ["follow_up_contact"],
+    path: ["contact_preference"],
 });
 
 
@@ -114,13 +118,16 @@ const defaultValues: Partial<WorkWithUsFormValues> = {
   skills_other: "",
   experience: "",
   why_insightica: "",
-  tools_experience: "",
-  unique_contribution: "",
-  follow_up: "",
-  follow_up_contact: ""
+  tool_feedback: "",
+  unique_skills_perspective: "",
+  interview_interest: "",
+  contact_preference: ""
 };
 
 export default function WorkWithUsPage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  
   const form = useForm<WorkWithUsFormValues>({
     resolver: zodResolver(WorkWithUsFormSchema),
     defaultValues,
@@ -129,14 +136,43 @@ export default function WorkWithUsPage() {
 
   const watchRole = form.watch("role");
   const watchSkills = form.watch("skills");
-  const watchUsedTools = form.watch("used_tools");
-  const watchFollowUp = form.watch("follow_up");
+  const watchProductFamiliarity = form.watch("product_familiarity");
+  const watchInterviewInterest = form.watch("interview_interest");
 
 
-  function onSubmit(data: WorkWithUsFormValues) {
-    console.log(data);
-    alert("Thank you for your application!");
-    form.reset();
+  async function onSubmit(data: WorkWithUsFormValues) {
+    setIsLoading(true);
+    const formData = new FormData();
+    
+    // Dynamically append fields to FormData
+    Object.entries(data).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === "") return;
+
+        if (key === 'resume' && value instanceof FileList && value.length > 0) {
+            formData.append(key, value[0]);
+        } else if (key === 'skills' && Array.isArray(value)) {
+            formData.append(key, JSON.stringify(value));
+        } else if (typeof value === 'string') {
+            formData.append(key, value);
+        }
+    });
+
+    try {
+      await submitWorkWithUsForm(formData);
+      toast({
+        title: "Application Sent!",
+        description: "Thank you for your interest in joining Insightica. We will review your application and be in touch.",
+      });
+      form.reset();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Application Failed",
+        description: error.message || "An unknown error occurred. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -144,7 +180,7 @@ export default function WorkWithUsPage() {
       <Header />
       <main className="flex-grow">
         <PageSection>
-          <div className="max-w-2xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto text-center">
              <FileText className="mx-auto h-12 w-12 text-accent mb-4" />
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-foreground">
               Work with <span className="text-accent">Insightica</span>
@@ -154,7 +190,7 @@ export default function WorkWithUsPage() {
             </p>
           </div>
           
-          <Card className="max-w-2xl mx-auto mt-12 bg-card/80 border-border/50">
+          <Card className="max-w-4xl mx-auto mt-12 bg-card/80 border-border/50">
             <CardHeader>
               <CardTitle className="text-2xl text-center text-card-foreground">Application Form</CardTitle>
             </CardHeader>
@@ -333,17 +369,18 @@ export default function WorkWithUsPage() {
                        <FormField
                         control={form.control}
                         name="resume"
-                        render={({ field }) => (
+                        render={({ field: { onChange, value, ...rest }}) => (
                           <FormItem>
-                            <FormLabel>Upload your resume (Optional)</FormLabel>
+                            <FormLabel>Upload your resume <span className="text-destructive">*</span></FormLabel>
                             <FormControl>
                                <Input 
                                 type="file" 
-                                accept=".pdf"
-                                onChange={(e) => field.onChange(e.target.files)}
+                                accept=".pdf,.doc,.docx"
+                                onChange={(e) => onChange(e.target.files)}
+                                {...rest}
                                />
                             </FormControl>
-                            <FormDescription>PDF format, max 5MB.</FormDescription>
+                            <FormDescription>PDF, DOC, DOCX format, max 5MB.</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -356,7 +393,7 @@ export default function WorkWithUsPage() {
                     <div className="space-y-6">
                       <FormField
                         control={form.control}
-                        name="used_tools"
+                        name="product_familiarity"
                         render={({ field }) => (
                           <FormItem className="space-y-3">
                             <FormLabel>Are you familiar with Insightica's platform and tools (Predictor, Backtester, Evaluators)? <span className="text-destructive">*</span></FormLabel>
@@ -388,10 +425,10 @@ export default function WorkWithUsPage() {
                           </FormItem>
                         )}
                       />
-                      {(watchUsedTools === "Yes - I've used them extensively" || watchUsedTools === "Yes - I've tried them briefly") && (
+                      {(watchProductFamiliarity === "Yes - I've used them extensively" || watchProductFamiliarity === "Yes - I've tried them briefly") && (
                          <FormField
                             control={form.control}
-                            name="tools_experience"
+                            name="tool_feedback"
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>If you've used our tools, please share your honest feedback and suggestions for improvement <span className="text-destructive">*</span></FormLabel>
@@ -403,7 +440,7 @@ export default function WorkWithUsPage() {
                       )}
                       <FormField
                         control={form.control}
-                        name="unique_contribution"
+                        name="unique_skills_perspective"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>What unique skills, perspective, or experience would you bring to our team? <span className="text-destructive">*</span></FormLabel>
@@ -414,7 +451,7 @@ export default function WorkWithUsPage() {
                       />
                       <FormField
                         control={form.control}
-                        name="availability"
+                        name="start_availability"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>When would you be available to start if selected? <span className="text-destructive">*</span></FormLabel>
@@ -434,7 +471,7 @@ export default function WorkWithUsPage() {
                       />
                        <FormField
                         control={form.control}
-                        name="follow_up"
+                        name="interview_interest"
                         render={({ field }) => (
                           <FormItem className="space-y-3">
                             <FormLabel>Would you be interested in participating in our interview process? (Optional)</FormLabel>
@@ -466,10 +503,10 @@ export default function WorkWithUsPage() {
                           </FormItem>
                         )}
                       />
-                       {(watchFollowUp === "Yes, absolutely" || watchFollowUp === "Yes, but prefer initial phone/video screening") && (
+                       {(watchInterviewInterest === "Yes, absolutely" || watchInterviewInterest === "Yes, but prefer initial phone/video screening") && (
                          <FormField
                             control={form.control}
-                            name="follow_up_contact"
+                            name="contact_preference"
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>If interested in interviews, how would you prefer we contact you? <span className="text-destructive">*</span></FormLabel>
@@ -491,8 +528,9 @@ export default function WorkWithUsPage() {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-3">
-                    Submit Application
+                  <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-3" disabled={isLoading}>
+                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                     {isLoading ? "Submitting..." : "Submit Application"}
                   </Button>
                 </form>
               </FormProvider>

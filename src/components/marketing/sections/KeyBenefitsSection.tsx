@@ -28,7 +28,7 @@ const keyBenefits = [
 const KeyBenefitsSection = () => {
   return (
     <PageSection className="bg-background/50">
-      <div className="text-center mb-12 md:mb-16">
+      <div className="text-center mb-12 md:mb-16" data-aos="fade-up">
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl text-foreground">
           Why Traders Choose <span className="text-accent">Insightica</span>
         </h2>
@@ -36,13 +36,15 @@ const KeyBenefitsSection = () => {
           Discover the core features that give you a trading edge.
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
         {keyBenefits.map((benefit, index) => {
           const IconComponent = benefit.icon;
           return (
             <div 
               key={index} 
-              className="bg-card/70 p-6 rounded-xl border border-border/40 shadow-lg hover:shadow-2xl hover:border-accent/60 transition-all duration-300 transform hover:-translate-y-1 flex flex-col"
+              className="bg-card/80 p-6 rounded-xl border border-border/50 shadow-lg hover:shadow-xl hover:border-accent/50 transition-all duration-300 transform hover:-translate-y-1 flex flex-col"
+              data-aos="fade-up"
+              data-aos-delay={index * 100}
             >
               <div className="flex items-center mb-4">
                 <div className="p-3 rounded-full bg-accent/20 text-accent mr-4 shrink-0">
@@ -50,7 +52,7 @@ const KeyBenefitsSection = () => {
                 </div>
                 <h3 className="text-xl font-semibold text-card-foreground">{benefit.title}</h3>
               </div>
-              <p className="text-muted-foreground text-sm flex-grow">{benefit.description}</p>
+              <p className="text-muted-foreground text-sm flex-grow text-left">{benefit.description}</p>
             </div>
           );
         })}

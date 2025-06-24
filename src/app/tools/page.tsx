@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import PageSection from '@/components/marketing/sections/PageSection';
@@ -15,12 +15,14 @@ import { Input } from '@/components/ui/input';
 import { Select as ShadSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Select from 'react-select';
 
-import BarGraph from '@/components/tools/single/components/BarGraph';
+import { BarGraph } from '@/components/charts/BarGraph';
 import { conditionMapIdName, tickerMap } from '@/components/tools/single/components/Mappings';
 import SingleEvaluator from '@/components/tools/SingleEvaluator';
 import DoubleEvaluator from '@/components/tools/DoubleEvaluator';
 import Backtester from '@/components/tools/Backtester';
 import { runSinglePredictor } from '@/api/tools';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface ToolTabInfo {
   value: string;
@@ -47,13 +49,24 @@ interface GraphData {
 }
 
 export default function ToolsPage() {
+  const { currentUser, loading } = useAuth();
+  const router = useRouter();
+
   const [stock, setStock] = useState<string>('ACC.NS');
   const [conditions, setConditions] = useState<readonly ConditionOption[]>([]);
   const [duration, setDuration] = useState<number>(45);
   
   const [graphData, setGraphData] = useState<GraphData[]>([]);
+  const [predictorGraphDomain, setPredictorGraphDomain] = useState<[number, number] | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      router.push('/auth/login');
+    }
+  }, [currentUser, loading, router]);
+
 
   const stockOptions = Object.entries(tickerMap).map(([value, label]) => ({ value, label }));
   const conditionOptions: ConditionOption[] = Object.entries(conditionMapIdName).map(([key, label]) => ({
@@ -88,8 +101,20 @@ export default function ToolsPage() {
       const response = await runSinglePredictor(apiInput);
       const transformedData = Object.entries(response.result).map(([conditionIndex, value]) => ({
           condition: conditionMapIdName[`c${conditionIndex}`] || `Condition ${conditionIndex}`,
-          value: Math.max(-1, Math.min(1, value)), // Clipping to [-1, 1]
+          value: value,
       }));
+      
+      const values = transformedData.map(d => d.value);
+      if (values.length > 0) {
+        const minValue = Math.min(...values);
+        const maxValue = Math.max(...values);
+        const padding = (maxValue - minValue) * 0.1 || 0.1;
+        const domain: [number, number] = [minValue - padding, maxValue + padding];
+        setPredictorGraphDomain(domain);
+      } else {
+        setPredictorGraphDomain(undefined);
+      }
+
       setGraphData(transformedData);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to fetch data. Please try again.');
@@ -97,6 +122,18 @@ export default function ToolsPage() {
       setIsLoading(false);
     }
   };
+
+  if (loading || !currentUser) {
+    return (
+        <div className="flex flex-col min-h-screen bg-background">
+          <Header />
+          <main className="flex-grow flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </main>
+          <Footer />
+        </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -128,89 +165,86 @@ export default function ToolsPage() {
             </TabsList>
             
             <TabsContent value="single_predictor">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <div className="lg:col-span-1">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Predictor Controls</CardTitle>
-                      <CardDescription>Configure your prediction parameters.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <form onSubmit={handlePredictorSubmit} className="space-y-6">
-                        <div>
-                          <Label htmlFor="stock-select">Stock</Label>
-                          <ShadSelect value={stock} onValueChange={setStock}>
-                            <SelectTrigger id="stock-select">
-                              <SelectValue placeholder="Select a stock" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {stockOptions.map(option => (
-                                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </ShadSelect>
-                        </div>
-                        <div>
-                          <Label htmlFor="conditions-select">Trading Strategies (Max 10)</Label>
-                          <Select
-                            id="conditions-select"
-                            isMulti
-                            options={conditionOptions}
-                            value={conditions}
-                            onChange={setConditions}
-                            className="mt-1 text-sm"
-                            classNamePrefix="react-select"
-                            styles={{
-                                control: (base) => ({...base, background: 'hsl(var(--input))', borderColor: 'hsl(var(--border))'}),
-                                menu: (base) => ({...base, background: 'hsl(var(--background))', zIndex: 10}),
-                                option: (base, state) => ({...base, background: state.isFocused ? 'hsl(var(--accent))' : 'hsl(var(--background))', color: state.isFocused ? 'hsl(var(--accent-foreground))' : 'hsl(var(--foreground))', cursor: 'pointer' }),
-                                multiValue: (base) => ({...base, background: 'hsl(var(--secondary))'}),
-                                multiValueLabel: (base) => ({...base, color: 'hsl(var(--secondary-foreground))'}),
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="duration">Duration (days)</Label>
-                          <Input
-                            id="duration"
-                            type="number"
-                            value={duration}
-                            onChange={(e) => setDuration(parseInt(e.target.value, 10) || 0)}
-                            min="1"
-                            className="mt-1"
-                          />
-                        </div>
-                        {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-                        <Button type="submit" className="w-full" disabled={isLoading}>
-                          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                          {isLoading ? 'Generating...' : 'Generate Graph'}
-                        </Button>
-                      </form>
-                    </CardContent>
-                  </Card>
-                </div>
-                <div className="lg:col-span-2">
-                  <Card className="min-h-[500px]">
-                    <CardHeader>
-                      <CardTitle>Prediction Results</CardTitle>
-                      <CardDescription>Predicted effectiveness score for selected strategies.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {isLoading ? (
-                        <div className="flex items-center justify-center h-80">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        </div>
-                      ) : graphData.length > 0 ? (
-                        <BarGraph data={graphData} />
-                      ) : (
-                        <div className="flex items-center justify-center h-80 text-muted-foreground">
-                          <p>Submit the form to view the prediction graph.</p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
+               <Card>
+                <CardHeader>
+                  <CardTitle>Predictor Controls</CardTitle>
+                  <CardDescription>Configure your prediction parameters.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handlePredictorSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                    <div className="lg:col-span-1">
+                      <Label htmlFor="stock-select">Stock</Label>
+                      <ShadSelect value={stock} onValueChange={setStock}>
+                        <SelectTrigger id="stock-select">
+                          <SelectValue placeholder="Select a stock" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {stockOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </ShadSelect>
+                    </div>
+                    <div className="lg:col-span-2">
+                      <Label htmlFor="conditions-select">Trading Strategies (Max 10)</Label>
+                      <Select
+                        id="conditions-select"
+                        isMulti
+                        options={conditionOptions}
+                        value={conditions}
+                        onChange={setConditions}
+                        className="mt-1 text-sm"
+                        classNamePrefix="react-select"
+                        styles={{
+                            control: (base) => ({...base, background: 'hsl(var(--input))', borderColor: 'hsl(var(--border))'}),
+                            menu: (base) => ({...base, background: 'hsl(var(--background))', zIndex: 10}),
+                            option: (base, state) => ({...base, background: state.isFocused ? 'hsl(var(--accent))' : 'hsl(var(--background))', color: state.isFocused ? 'hsl(var(--accent-foreground))' : 'hsl(var(--foreground))', cursor: 'pointer' }),
+                            multiValue: (base) => ({...base, background: 'hsl(var(--secondary))'}),
+                            multiValueLabel: (base) => ({...base, color: 'hsl(var(--secondary-foreground))'}),
+                        }}
+                      />
+                    </div>
+                    <div className="lg:col-span-1">
+                      <Label htmlFor="duration">Duration (days)</Label>
+                      <Input
+                        id="duration"
+                        type="number"
+                        value={duration}
+                        onChange={(e) => setDuration(parseInt(e.target.value, 10) || 0)}
+                        min="1"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="lg:col-span-4 mt-4">
+                       {error && <p className="text-sm font-medium text-destructive mb-2">{error}</p>}
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {isLoading ? 'Generating...' : 'Generate Graph'}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+
+              <Card className="mt-8 min-h-[500px]">
+                <CardHeader>
+                  <CardTitle>Prediction Results</CardTitle>
+                  <CardDescription>Predicted effectiveness score for selected strategies.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <div className="flex items-center justify-center h-80">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : graphData.length > 0 ? (
+                    <BarGraph data={graphData} xAxisKey="condition" yAxisKey="value" yAxisDomain={predictorGraphDomain} />
+                  ) : (
+                    <div className="flex items-center justify-center h-80 text-muted-foreground">
+                      <p>Submit the form to view the prediction graph.</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="single_evaluator">

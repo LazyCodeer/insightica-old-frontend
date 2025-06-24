@@ -59,7 +59,7 @@ export default function LoginForm() {
       </CardHeader>
       <CardContent>
         <FormProvider {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="email"
@@ -78,7 +78,12 @@ export default function LoginForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <div className="flex justify-between items-center">
+                    <FormLabel>Password</FormLabel>
+                     <Button variant="link" asChild className="p-0 h-auto text-xs text-muted-foreground hover:text-accent font-normal">
+                      <Link href="/auth/reset-password">Forgot Password?</Link>
+                    </Button>
+                  </div>
                   <FormControl>
                     <div className="relative">
                       <Input 
@@ -103,7 +108,7 @@ export default function LoginForm() {
               )}
             />
             {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-            <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={loading}>
+            <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground pt-2" disabled={loading}>
               {loading ? 'Logging in...' : 'Log In'}
             </Button>
           </form>

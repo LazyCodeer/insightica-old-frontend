@@ -7,6 +7,15 @@ const apiClient = axios.create({
   },
 });
 
+const handleLogoutAndRedirect = () => {
+    localStorage.removeItem('insightica_access_token');
+    localStorage.removeItem('insightica_refresh_token');
+    delete apiClient.defaults.headers.common['Authorization'];
+    if (typeof window !== 'undefined') {
+        window.location.href = '/auth/login';
+    }
+};
+
 apiClient.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem('insightica_access_token');
@@ -29,6 +38,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = localStorage.getItem('insightica_refresh_token');
+
       if (refreshToken) {
         try {
           const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/user/token/refresh/`, {
@@ -44,16 +54,13 @@ apiClient.interceptors.response.use(
           return apiClient(originalRequest);
         } catch (refreshError) {
           // Refresh token failed, logout user
-          localStorage.removeItem('insightica_access_token');
-          localStorage.removeItem('insightica_refresh_token');
-          localStorage.removeItem('insighticaUser');
-          delete apiClient.defaults.headers.common['Authorization'];
-          // Redirect to login page
-          if (typeof window !== 'undefined') {
-            window.location.href = '/auth/login';
-          }
+          handleLogoutAndRedirect();
           return Promise.reject(refreshError);
         }
+      } else {
+        // No refresh token, logout user
+        handleLogoutAndRedirect();
+        return Promise.reject(error);
       }
     }
     return Promise.reject(error);

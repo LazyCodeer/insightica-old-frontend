@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
@@ -9,12 +10,14 @@ import Footer from '@/components/layout/Footer';
 import PageSection from '@/components/marketing/sections/PageSection';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label'; // Added Label for consistency
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Link from 'next/link';
+import { useToast } from "@/hooks/use-toast";
+import { submitEarlyAccessForm } from "@/api/user";
+import { Loader2 } from "lucide-react";
 
 const EarlyAccessFormSchema = z.object({
   full_name: z.string().min(1, "Full name is required."),
@@ -48,6 +51,9 @@ const defaultValues: Partial<EarlyAccessFormValues> = {
 };
 
 export default function EarlyAccessPage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
   const form = useForm<EarlyAccessFormValues>({
     resolver: zodResolver(EarlyAccessFormSchema),
     defaultValues,
@@ -56,11 +62,29 @@ export default function EarlyAccessPage() {
 
   const watchReferralSource = form.watch("referral_source");
 
-  function onSubmit(data: EarlyAccessFormValues) {
-    console.log(data);
-    // TODO: Implement backend submission
-    alert("Thank you for signing up for early access!");
-    form.reset();
+  async function onSubmit(data: EarlyAccessFormValues) {
+    setIsLoading(true);
+    const payload = {
+      ...data,
+      anything_else: data.additional_comments, // Map frontend field to backend field name
+    };
+
+    try {
+      await submitEarlyAccessForm(payload);
+      toast({
+        title: "Success!",
+        description: "Thank you for joining the waitlist. We'll be in touch soon.",
+      });
+      form.reset();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description: error.message || "There was a problem submitting your request. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -201,8 +225,9 @@ export default function EarlyAccessPage() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                    Join Waitlist
+                  <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isLoading ? 'Joining...' : 'Join Waitlist'}
                   </Button>
                 </form>
               </FormProvider>

@@ -16,13 +16,14 @@ const baseNavLinks = [
   { href: '/tutorials', label: 'Tutorials' },
 ];
 
-const NavLinkItem = ({ href, label, isActive, onClick, className }: { href: string, label: string, isActive: boolean, onClick?: () => void, className?: string }) => (
+const NavLinkItem = ({ href, label, isActive, onClick, className, ...props }: { href: string, label: string, isActive: boolean, onClick?: () => void, className?: string, [key: string]: any }) => (
   <Button variant="link" asChild 
     className={cn(
       "text-base px-3 py-2 hover:text-accent transition-colors", 
       isActive ? "text-accent font-semibold" : "text-foreground/80", 
       className
     )}
+    {...props}
   >
     <Link href={href} onClick={onClick}>{label}</Link>
   </Button>
@@ -30,8 +31,21 @@ const NavLinkItem = ({ href, label, isActive, onClick, className }: { href: stri
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const { currentUser, logout, loading } = useAuth();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    // Set initial state
+    handleScroll();
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -72,17 +86,21 @@ const Header = () => {
 
   return (
     <header className={cn(
-      "sticky top-0 z-50 w-full transition-all duration-300",
-      "bg-background/80 backdrop-blur-md shadow-lg border-b border-border/50"
+      "fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300",
+      (isScrolled || isMobileMenuOpen || pathname !== '/')
+        ? "bg-background/80 backdrop-blur-md shadow-lg border-b border-border/50"
+        : "bg-transparent"
     )}>
-      <div className="container mx-auto flex h-20 items-center justify-between px-5 md:px-10">
-        <Logo />
-        <nav className="hidden md:flex items-center space-x-1">
-          {navLinksToDisplay.map((link) => (
-             <NavLinkItem key={link.href} href={link.href} label={link.label} isActive={pathname === link.href} />
+      <div className="flex h-20 items-center justify-between px-5 md:px-10 mx-auto">
+        <div data-aos="fade-down" data-aos-delay="100">
+          <Logo />
+        </div>
+        <nav className="hidden md:flex items-center space-x-1" data-aos="fade-down" data-aos-delay="200">
+          {navLinksToDisplay.map((link, index) => (
+             <NavLinkItem key={link.href} href={link.href} label={link.label} isActive={pathname === link.href} data-aos="fade-down" data-aos-delay={300 + index * 50} />
           ))}
           {currentUser && !loading && (
-            <Button variant="ghost" onClick={handleLogout} className="text-base text-foreground/80 hover:text-accent">
+            <Button variant="ghost" onClick={handleLogout} className="text-base text-foreground/80 hover:text-accent" data-aos="fade-down" data-aos-delay="600">
               <LogOut className="mr-2 h-4 w-4" /> Logout
             </Button>
           )}

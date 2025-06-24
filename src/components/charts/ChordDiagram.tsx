@@ -1,9 +1,8 @@
 
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CopyCheck } from "lucide-react";
+import ReactChordDiagram from 'react-chord-diagram';
 
 interface ChordDiagramProps {
     data: {
@@ -12,46 +11,54 @@ interface ChordDiagramProps {
     } | undefined;
 }
 
+const chartColors = [
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-4))',
+    'hsl(var(--chart-5))',
+    'hsl(var(--chart-1))', // Repeat for more than 5 conditions
+];
+
 export function ChordDiagram({ data }: ChordDiagramProps) {
-    if (!data || data.names.length < 3) {
+    if (!data || data.names.length < 3 || data.names.length > 6) {
         return (
             <div className="p-6 bg-card/50 border border-border/50 rounded-lg min-h-[350px] flex flex-col items-center justify-center text-center">
                 <CopyCheck className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">Chord Diagram Placeholder</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Chord Diagram</h3>
                 <p className="text-muted-foreground">Please select 3 to 6 conditions to visualize their pairwise synergy.</p>
-                <p className="text-sm text-primary mt-4 animate-pulse">
-                    This advanced visualization is under construction. The data is ready and will be displayed here soon.
-                </p>
             </div>
         );
     }
-
+    
+    // The library has some issues with rendering in a flex/grid container,
+    // so wrapping it with a fixed size helps stabilization.
     return (
-        <div className="p-4 border rounded-lg">
-            <h4 className="text-center font-semibold mb-2">Pairwise Synergy Data Matrix</h4>
-            <p className="text-center text-sm text-muted-foreground mb-4">This table represents the data that will be used to generate the chord diagram.</p>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Condition</TableHead>
-                        {data.names.map((name, i) => (
-                            <TableHead key={i} className="text-center">{name}</TableHead>
-                        ))}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {data.matrix.map((row, i) => (
-                        <TableRow key={i}>
-                            <TableHead>{data.names[i]}</TableHead>
-                            {row.map((val, j) => (
-                                <TableCell key={j} className="text-center">
-                                    {i === j ? '-' : val.toFixed(2)}
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+        <div className="flex flex-col items-center w-full">
+             <ReactChordDiagram
+                matrix={data.matrix}
+                componentId={1}
+                groupLabels={[]}
+                groupColors={chartColors.slice(0, data.names.length)}
+                padAngle={0.04}
+                labelColors={[]}
+                style={{
+                    'padding-bottom': '0px'
+                }}
+                width={400}
+                height={400}
+             />
+             <div className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2">
+                {data.names.map((name, index) => (
+                    <div key={name} className="flex items-center space-x-2">
+                        <span 
+                            className="h-3 w-3 rounded-full" 
+                            style={{ backgroundColor: chartColors[index % chartColors.length] }} 
+                        />
+                        <span className="text-sm text-muted-foreground">{name}</span>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
