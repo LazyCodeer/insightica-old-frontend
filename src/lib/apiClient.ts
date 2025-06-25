@@ -20,7 +20,7 @@ apiClient.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem('insightica_access_token');
     if (accessToken) {
-      config.headers.Authorization = `JWT ${accessToken}`;
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
@@ -49,8 +49,8 @@ apiClient.interceptors.response.use(
           if (refresh) {
             localStorage.setItem('insightica_refresh_token', refresh);
           }
-          apiClient.defaults.headers.common['Authorization'] = `JWT ${access}`;
-          originalRequest.headers['Authorization'] = `JWT ${access}`;
+          apiClient.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+          originalRequest.headers['Authorization'] = `Bearer ${access}`;
           return apiClient(originalRequest);
         } catch (refreshError) {
           // Refresh token failed, logout user

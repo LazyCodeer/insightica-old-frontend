@@ -62,15 +62,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setLoading(true);
     // The backend endpoint for token expects a 'username' field.
     // We are passing the email as the username.
-    const response = await apiClient.post('/user/token/', { username: email, password: pass });
-    const { access, refresh } = response.data;
+    const response = await apiClient.post('/user/signin/', { email: email, password: pass });
+    const { access, refresh, user } = response.data;
     
     localStorage.setItem('insightica_access_token', access);
     localStorage.setItem('insightica_refresh_token', refresh);
     
-    apiClient.defaults.headers.common['Authorization'] = `JWT ${access}`;
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${access}`;
     
-    const user = await getMe();
+    // const user = await getMe();
     setCurrentUser(user);
     
     setLoading(false);
