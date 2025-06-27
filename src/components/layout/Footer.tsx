@@ -30,10 +30,10 @@ const Footer = () => {
             <Link href="/forms/invest" className="text-sm font-semibold hover:text-accent transition-colors">Invest</Link>
           </div>
           <div className="flex space-x-4">
-            <Link href="#" aria-label="Twitter" className="hover:text-accent transition-colors"><Twitter size={20} /></Link>
-            <Link href="#" aria-label="LinkedIn" className="hover:text-accent transition-colors"><Linkedin size={20} /></Link>
-            <Link href="#" aria-label="Instagram" className="hover:text-accent transition-colors"><Instagram size={20} /></Link>
-            <Link href="#" aria-label="Reddit" className="hover:text-accent transition-colors"><RedditIcon style={{ width: 20, height: 20 }} /></Link>
+            <Link href="https://x.com/Insightica32861" target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="hover:text-accent transition-colors"><Twitter size={20} /></Link>
+            <Link href="https://www.linkedin.com/company/insightica-in" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-accent transition-colors"><Linkedin size={20} /></Link>
+            <Link href="https://www.instagram.com/insightica_official/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-accent transition-colors"><Instagram size={20} /></Link>
+            <Link href="https://www.reddit.com/r/insightica_official/" target="_blank" rel="noopener noreferrer" aria-label="Reddit" className="hover:text-accent transition-colors"><RedditIcon style={{ width: 20, height: 20 }} /></Link>
           </div>
         </div>
       </div>

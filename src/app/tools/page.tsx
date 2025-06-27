@@ -8,12 +8,13 @@ import PageSection from '@/components/marketing/sections/PageSection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Settings2, BarChart3, SearchCheck, Lightbulb, History, Loader2, CopyCheck } from 'lucide-react';
+import { Settings2, BarChart3, SearchCheck, Lightbulb, History, Loader2, CopyCheck, HelpCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select as ShadSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Select from 'react-select';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 import { BarGraph } from '@/components/charts/BarGraph';
 import { conditionMapIdName, tickerMap } from '@/components/tools/single/components/Mappings';
@@ -150,6 +151,26 @@ export default function ToolsPage() {
             </p>
           </div>
 
+          <div className="text-left mb-8 max-w-4xl mx-auto bg-card/50 p-6 rounded-lg border border-border/50">
+            <p className="text-muted-foreground mb-4">
+                Insightica’s suite of tools empowers traders with data-driven insights to make informed trading decisions. Each tool is crafted for simplicity and precision, leveraging machine learning and historical data to support your strategies.
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                <li>
+                    <strong>Single Predictor:</strong> Discover trading strategies predicted to perform best for a chosen stock in the upcoming period.
+                </li>
+                <li>
+                    <strong>Single Evaluator:</strong> Explore the historical performance of different trading strategies across various stocks.
+                </li>
+                <li>
+                    <strong>Double Evaluator:</strong> Explore the historical performance of different pairs of trading strategies across various stocks.
+                </li>
+                <li>
+                    <strong>Backtester:</strong> Evaluate the performance of a custom combination of trading strategies for a specific stock over a chosen time period.
+                </li>
+            </ul>
+          </div>
+
           <Tabs defaultValue="single_predictor" className="w-full">
             <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-8 h-auto p-1">
               {toolTabs.map((tab) => (
@@ -165,6 +186,32 @@ export default function ToolsPage() {
             </TabsList>
             
             <TabsContent value="single_predictor">
+               <Accordion type="single" collapsible className="w-full mb-6 bg-card/50 px-4 rounded-lg border border-border/50">
+                <AccordionItem value="item-1" className="border-b-0">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <HelpCircle className="h-5 w-5 text-accent" />
+                      <span>How to use the Single Predictor</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1">
+                      <h4>Single Predictor – Interpretation Guide</h4>
+                      <p>This tool predicts the performance of selected trading strategies for a given stock in the upcoming period.</p>
+                      <ul>
+                        <li><strong>Inputs:</strong> A stock, a performance metric, and a list of trading strategies.</li>
+                        <li><strong>Output:</strong> A bar graph where:
+                          <ul>
+                            <li>X-axis: Displays the trading strategies.</li>
+                            <li>Y-axis: Shows the predicted values of the chosen metric.</li>
+                          </ul>
+                        </li>
+                        <li><strong>Purpose:</strong> Helps you identify which strategies are expected to perform best for the stock in the near future.</li>
+                      </ul>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
                <Card>
                 <CardHeader>
                   <CardTitle>Predictor Controls</CardTitle>
@@ -206,14 +253,19 @@ export default function ToolsPage() {
                     </div>
                     <div className="lg:col-span-1">
                       <Label htmlFor="duration">Duration (days)</Label>
-                      <Input
-                        id="duration"
-                        type="number"
-                        value={duration}
-                        onChange={(e) => setDuration(parseInt(e.target.value, 10) || 0)}
-                        min="1"
-                        className="mt-1"
-                      />
+                      <ShadSelect
+                        value={String(duration)}
+                        onValueChange={(value) => setDuration(parseInt(value, 10))}
+                      >
+                        <SelectTrigger id="duration" className="mt-1">
+                          <SelectValue placeholder="Select duration" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="20">20</SelectItem>
+                          <SelectItem value="30">30</SelectItem>
+                          <SelectItem value="45">45</SelectItem>
+                        </SelectContent>
+                      </ShadSelect>
                     </div>
                     <div className="lg:col-span-4 mt-4">
                        {error && <p className="text-sm font-medium text-destructive mb-2">{error}</p>}
@@ -256,6 +308,27 @@ export default function ToolsPage() {
             </TabsContent>
 
             <TabsContent value="backtester">
+                <Accordion type="single" collapsible className="w-full mb-6 bg-card/50 px-4 rounded-lg border border-border/50">
+                  <AccordionItem value="item-1" className="border-b-0">
+                    <AccordionTrigger className="hover:no-underline">
+                      <div className="flex items-center gap-2">
+                        <HelpCircle className="h-5 w-5 text-accent" />
+                        <span>How to use the Backtester</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1">
+                          <h4>Backtester – Interpretation Guide</h4>
+                          <p>This tool evaluates the historical performance of a custom combination of trading strategies for a chosen stock over a specified time period.</p>
+                          <ul>
+                            <li><strong>Inputs:</strong> Stock name, stop-loss, brokerage, and a combination of trading strategies.</li>
+                            <li><strong>Output:</strong> A table showing the performance across seven key metrics (e.g., Sharpe Ratio, Total Return).</li>
+                            <li><strong>Purpose:</strong> Allows you to assess how your custom strategy combination would have performed historically.</li>
+                          </ul>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
                  <Backtester />
             </TabsContent>
 

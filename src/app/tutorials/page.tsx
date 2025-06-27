@@ -10,18 +10,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import Image from 'next/image';
 import * as lucideIcons from 'lucide-react';
 import knowledgeBaseData from '@/data/knowledge-base.json';
+import toolsTutorialsData from '@/data/tools-tutorials.json';
 import type { LucideIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { CheckCircle } from 'lucide-react';
 
 interface KnowledgeBaseItem {
   id: string;
   image: string;
   imageHint?: string;
   title: string;
-  icon: string; // Icon name as string
+  icon: string; 
   summary: string;
   category: string;
   overview: string;
@@ -30,7 +32,25 @@ interface KnowledgeBaseItem {
   implementation: string;
 }
 
-// Icon mapping
+interface ToolTutorial {
+  id: string;
+  category: string;
+  title: string;
+  icon: string;
+  summary: string;
+  // Old fields for backward compatibility
+  steps?: string[];
+  tips?: string[];
+  // New fields for structured content
+  whatItDoes?: string;
+  inputs?: string[];
+  output?: string;
+  whyUseIt?: string[];
+  howItHelps?: string;
+  howToUse?: string[];
+}
+
+
 const iconMap: { [key: string]: LucideIcon } = {
   TrendingUp: lucideIcons.TrendingUp,
   GitCompareArrows: lucideIcons.GitCompareArrows,
@@ -49,8 +69,8 @@ const iconMap: { [key: string]: LucideIcon } = {
   ArrowUpRight: lucideIcons.ArrowUpRight,
   Minus: lucideIcons.Minus,
   MapPin: lucideIcons.MapPin,
-  HelpCircle: lucideIcons.HelpCircle, // Default/fallback icon
-  BookOpen: lucideIcons.BookOpen, // General knowledge icon
+  HelpCircle: lucideIcons.HelpCircle, 
+  BookOpen: lucideIcons.BookOpen, 
   ListChecks: lucideIcons.ListChecks,
   Presentation: lucideIcons.Presentation,
   BrainCircuit: lucideIcons.BrainCircuit,
@@ -62,12 +82,18 @@ const iconMap: { [key: string]: LucideIcon } = {
   Lightbulb: lucideIcons.Lightbulb,
   History: lucideIcons.History,
   Settings2: lucideIcons.Settings2,
+  CopyCheck: lucideIcons.CopyCheck,
+  LayoutGrid: lucideIcons.LayoutGrid,
+  Radar: lucideIcons.Radar,
+  BarChartHorizontal: lucideIcons.BarChartHorizontal,
+  BarChart2: lucideIcons.BarChart2,
 };
 
 
 export default function TutorialsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<KnowledgeBaseItem | null>(null);
+  const [selectedTool, setSelectedTool] = useState<ToolTutorial | null>(null);
 
   const filteredData = knowledgeBaseData.filter(item =>
     item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -75,7 +101,127 @@ export default function TutorialsPage() {
     item.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const IconComponent = selectedItem ? iconMap[selectedItem.icon] || lucideIcons.HelpCircle : lucideIcons.HelpCircle;
+  const KnowledgeBaseIcon = selectedItem ? iconMap[selectedItem.icon] || lucideIcons.HelpCircle : lucideIcons.HelpCircle;
+  const ToolIcon = selectedTool ? iconMap[selectedTool.icon] || lucideIcons.HelpCircle : lucideIcons.HelpCircle;
+
+  const predictorTutorials = toolsTutorialsData.filter(t => t.category === 'Predictor');
+  const singleEvaluatorTutorials = toolsTutorialsData.filter(t => t.category === 'Single Evaluator');
+  const doubleEvaluatorTutorials = toolsTutorialsData.filter(t => t.category === 'Double Evaluator');
+  const backtesterTutorials = toolsTutorialsData.filter(t => t.category === 'Backtester');
+
+  const ToolTutorialContent = ({ item }: { item: ToolTutorial | null }) => {
+    if (!item) return null;
+
+    if (item.whatItDoes) {
+      return (
+          <div className="space-y-4 text-muted-foreground py-4 text-sm">
+              {item.whatItDoes && (
+                  <div>
+                      <h4 className="font-semibold text-foreground mb-1 text-base">What It Does</h4>
+                      <p>{item.whatItDoes}</p>
+                  </div>
+              )}
+              {item.inputs && (
+                  <div>
+                      <h4 className="font-semibold text-foreground mb-1 text-base">Inputs</h4>
+                      <ul className="list-disc list-inside space-y-1">{item.inputs.map((inputItem, i) => <li key={i}>{inputItem}</li>)}</ul>
+                  </div>
+              )}
+              {item.output && (
+                  <div>
+                      <h4 className="font-semibold text-foreground mb-1 text-base">Output</h4>
+                      <div className="whitespace-pre-wrap">{item.output}</div>
+                  </div>
+              )}
+              {item.whyUseIt && (
+                  <div>
+                      <h4 className="font-semibold text-foreground mb-1 text-base">Why Use It?</h4>
+                      <ul className="list-disc list-inside space-y-1">{item.whyUseIt.map((useItem, i) => <li key={i}>{useItem}</li>)}</ul>
+                  </div>
+              )}
+              {item.howItHelps && (
+                  <div>
+                      <h4 className="font-semibold text-foreground mb-1 text-base">How It Helps</h4>
+                      <p>{item.howItHelps}</p>
+                  </div>
+              )}
+              {item.howToUse && (
+                  <div>
+                      <h4 className="font-semibold text-foreground mb-1 text-base">How to Use</h4>
+                      <ol className="list-decimal list-inside space-y-1">{item.howToUse.map((useStep, i) => <li key={i}>{useStep}</li>)}</ol>
+                  </div>
+              )}
+          </div>
+      );
+    }
+    // Fallback for old format
+    return (
+        <div className="space-y-6 text-muted-foreground py-4">
+            <div>
+                <h4 className="text-lg font-semibold text-foreground mb-3">How to Use:</h4>
+                <ol className="list-decimal list-inside space-y-2 text-sm">
+                    {item.steps?.map((step, index) => (<li key={index}>{step}</li>))}
+                </ol>
+            </div>
+            <div>
+                <h4 className="text-lg font-semibold text-foreground mb-3">Tips for Best Results:</h4>
+                <ul className="space-y-2 text-sm">
+                    {item.tips?.map((tip, index) => (
+                        <li key={index} className="flex items-start">
+                            <CheckCircle className="h-4 w-4 mr-2 mt-0.5 text-green-500 flex-shrink-0" />
+                            <span>{tip}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+    );
+  };
+
+  const renderToolCard = (item: ToolTutorial) => {
+    const IconComponent = iconMap[item.icon] || lucideIcons.HelpCircle;
+    return (
+      <Card key={item.id} className="flex flex-col bg-card/80 border-border/50 overflow-hidden hover:shadow-xl hover:border-accent/50 transition-all duration-300">
+        <CardHeader>
+          <div className="flex items-center space-x-3 mb-2">
+            <IconComponent className="h-7 w-7 text-accent flex-shrink-0" />
+            <CardTitle className="text-xl text-card-foreground">{item.title}</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex-grow">
+          <p className="text-sm text-muted-foreground">{item.summary}</p>
+        </CardContent>
+        <CardFooter>
+          <Button 
+              variant="outline" 
+              className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent"
+              onClick={() => setSelectedTool(item)}
+            >
+            Read More
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  };
+
+  const FullWidthTutorial = ({ item }: { item: ToolTutorial }) => {
+    if (!item) return null;
+    const IconComponent = iconMap[item.icon] || lucideIcons.HelpCircle;
+    return (
+      <Card className="w-full bg-card/80 border-border/50">
+        <CardHeader>
+          <div className="flex items-center space-x-3 mb-2">
+            <IconComponent className="h-7 w-7 text-accent flex-shrink-0" />
+            <CardTitle className="text-xl text-card-foreground">{item.title}</CardTitle>
+          </div>
+          <CardDescription>{item.summary}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ToolTutorialContent item={item} />
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -149,13 +295,50 @@ export default function TutorialsPage() {
             </TabsContent>
 
             <TabsContent value="tools-usage">
-              <div className="text-center py-10">
-                <lucideIcons.Construction className="mx-auto h-12 w-12 text-accent mb-4" />
-                <h2 className="text-2xl font-semibold text-foreground">Tools Usage Guides</h2>
-                <p className="text-muted-foreground mt-2">
-                  Detailed tutorials on how to use each of Insightica&apos;s tools are coming soon!
+              <div className="text-center mb-10">
+                <h3 className="text-3xl font-bold tracking-tight text-foreground">Tools Usage</h3>
+                <p className="mt-4 max-w-3xl mx-auto text-lg text-muted-foreground">
+                  Insightica's suite of tools—Single Predictor, Single Evaluator, Double Evaluator, and Backtester—empowers traders with data-driven insights to optimize trading strategies. Each tool includes subtools (heatmaps, radial graphs, bar graphs, and chord diagrams) tailored for specific analyses. Below, we explain what each subtool does, the required inputs, and their unique use cases, emphasizing why they’re valuable and how to use them effectively.
                 </p>
               </div>
+               <Tabs defaultValue="predictor" className="w-full">
+                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-8 h-auto p-1">
+                    <TabsTrigger value="predictor">Predictor</TabsTrigger>
+                    <TabsTrigger value="single_evaluator">Single Evaluator</TabsTrigger>
+                    <TabsTrigger value="double_evaluator">Double Evaluator</TabsTrigger>
+                    <TabsTrigger value="backtester">Backtester</TabsTrigger>
+                </TabsList>
+                <TabsContent value="predictor">
+                  <div className="space-y-4">
+                      {predictorTutorials.map(item => <FullWidthTutorial key={item.id} item={item} />)}
+                  </div>
+                </TabsContent>
+                <TabsContent value="single_evaluator">
+                  <div className="text-center mb-8">
+                      <p className="max-w-3xl mx-auto text-muted-foreground">
+                          The Single Evaluator analyzes the historical performance of individual trading strategies across stocks and metrics, using three subtools: Heatmap, Radial Graph, and Bar Graphs (Metric vs History and Metric vs Stock).
+                      </p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {singleEvaluatorTutorials.map(renderToolCard)}
+                  </div>
+                </TabsContent>
+                <TabsContent value="double_evaluator">
+                  <div className="text-center mb-8">
+                      <p className="max-w-3xl mx-auto text-muted-foreground">
+                        The Double Evaluator analyzes the historical performance of strategy pairs (one fixed strategy paired with others) across stocks and metrics. It includes four subtools: Heatmap, Radial Graph, Bar Graphs, and Chord Diagram. Unlike the Single Evaluator, it focuses on how strategy combinations perform, helping you find synergistic pairs.
+                      </p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {doubleEvaluatorTutorials.map(renderToolCard)}
+                  </div>
+                </TabsContent>
+                <TabsContent value="backtester">
+                  <div className="space-y-4">
+                    {backtesterTutorials.map(item => <FullWidthTutorial key={item.id} item={item} />)}
+                  </div>
+                </TabsContent>
+              </Tabs>
             </TabsContent>
           </Tabs>
 
@@ -164,7 +347,7 @@ export default function TutorialsPage() {
               <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
                    <div className="flex items-center space-x-3 mb-2">
-                    <IconComponent className="h-7 w-7 text-accent flex-shrink-0" />
+                    <KnowledgeBaseIcon className="h-7 w-7 text-accent flex-shrink-0" />
                     <DialogTitle className="text-2xl">{selectedItem.title}</DialogTitle>
                   </div>
                   <DialogDescription>{selectedItem.category}</DialogDescription>
@@ -204,10 +387,29 @@ export default function TutorialsPage() {
             </Dialog>
           )}
 
+          {selectedTool && (
+             <Dialog open={!!selectedTool} onOpenChange={(isOpen) => !isOpen && setSelectedTool(null)}>
+              <DialogContent className="sm:max-w-2xl">
+                <DialogHeader>
+                   <div className="flex items-center space-x-3 mb-2">
+                    <ToolIcon className="h-7 w-7 text-accent flex-shrink-0" />
+                    <DialogTitle className="text-2xl">{selectedTool.title} Tutorial</DialogTitle>
+                  </div>
+                  <DialogDescription>{selectedTool.summary}</DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="max-h-[60vh] pr-6">
+                  <ToolTutorialContent item={selectedTool} />
+                </ScrollArea>
+                 <DialogClose asChild>
+                    <Button variant="outline">Close</Button>
+                </DialogClose>
+              </DialogContent>
+            </Dialog>
+          )}
+
         </PageSection>
       </main>
       <Footer />
     </div>
   );
 }
-

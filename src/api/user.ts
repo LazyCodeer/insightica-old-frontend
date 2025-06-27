@@ -25,11 +25,6 @@ export const signupUser = async (userData: SignupFormValues) => {
   }
 };
 
-export const getMe = async (): Promise<AppUser> => {
-    const response = await apiClient.get('/user/me/');
-    return response.data;
-};
-
 export const verifyEmail = async (token: string) => {
   const response = await apiClient.post('/user/verify-email/', { token });
   return response.data;

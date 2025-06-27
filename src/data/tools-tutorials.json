@@ -1,0 +1,276 @@
+
+[
+    {
+        "id": "predictor",
+        "category": "Predictor",
+        "title": "Single Predictor",
+        "icon": "Lightbulb",
+        "summary": "Forecasts the performance of selected trading strategies for a specific stock in the upcoming period.",
+        "whatItDoes": "The Single Predictor forecasts the performance of selected trading strategies for a specific stock in the upcoming period, displaying results in a bar graph.",
+        "inputs": [
+            "Stock: Select one stock (e.g., ACC.NS).",
+            "Metric: Choose one metric (e.g., Sharpe Ratio, Total Return).",
+            "Strategies: Pick multiple strategies (e.g., SMA10 over SMA50, RSI)."
+        ],
+        "output": "A bar graph where the X-axis lists the selected strategies and the Y-axis shows predicted metric scores.",
+        "whyUseIt": [
+            "Predictive Power: Offers forward-looking insights to identify strategies likely to succeed, unlike historical analysis tools.",
+            "Strategy Ranking: Directly compares strategies to guide your next trade."
+        ],
+        "howItHelps": "It simplifies selecting high-potential strategies by showing which are expected to perform best for a stock in the near future.",
+        "howToUse": [
+            "Choose a stock and a metric.",
+            "Select multiple strategies to compare.",
+            "Review the bar graph—higher bars indicate better predicted performance."
+        ]
+    },
+    {
+        "id": "single-eval-heatmap",
+        "category": "Single Evaluator",
+        "title": "Heatmap",
+        "icon": "LayoutGrid",
+        "summary": "Displays the performance of multiple strategies across multiple stocks for a single metric at a chosen historical point.",
+        "whatItDoes": "The Heatmap displays the performance of multiple strategies across multiple stocks for a single metric at a chosen historical point.",
+        "inputs": [
+            "History: Set a historical point (0 to 99) using a slider.",
+            "Stocks: Select up to 10 stocks from a multi-select dropdown.",
+            "Strategies: Choose up to 10 strategies from a multi-select dropdown.",
+            "Metric: Pick one metric from a single-select dropdown."
+        ],
+        "output": "A heatmap:\n- Rows: Strategies (e.g., Bollinger Bands).\n- Columns: Stocks (e.g., ABBOTTINDIA).\n- Cells: Metric performance values for the strategy-stock combination.",
+        "whyUseIt": [
+            "Broad Comparison: Quickly compare many strategies across multiple stocks to identify top performers.",
+            "Pattern Recognition: Spot trends or outliers across a portfolio at a glance."
+        ],
+        "howItHelps": "It helps you find strategies that work well across various stocks, supporting diversification or focused investments.",
+        "howToUse": [
+            "Set the history slider to a specific point.",
+            "Select up to 10 stocks and 10 strategies.",
+            "Choose a metric.",
+            "Check the heatmap—darker or lighter cells (per the color scale) indicate better or worse performance."
+        ]
+    },
+    {
+        "id": "single-eval-radial",
+        "category": "Single Evaluator",
+        "title": "Radial Graph",
+        "icon": "Radar",
+        "summary": "Shows how multiple strategies perform for a single stock across multiple metrics at a specific historical point.",
+        "whatItDoes": "The Radial Graph shows how multiple strategies perform for a single stock across multiple metrics at a specific historical point.",
+        "inputs": [
+            "History: Set a historical point (0 to 99) with a slider.",
+            "Stock: Select one stock from a single-select dropdown.",
+            "Strategies: Choose up to 8 strategies from a multi-select dropdown."
+        ],
+        "output": "A radial graph:\n- Spokes: Represent strategies.\n- Colored Lines: Represent metrics (e.g., Sharpe Ratio, Total Return).\n- Intersection Points: Show performance scores (center is negative, middle is zero, outer is positive).",
+        "whyUseIt": [
+            "Multi-Metric Insight: Evaluates a stock’s strategies across several metrics simultaneously, revealing trade-offs like risk versus return.",
+            "Focused Analysis: Deepens understanding of one stock’s strategy performance."
+        ],
+        "howItHelps": "It guides strategy selection by showing which strategies balance multiple performance metrics for a specific stock.",
+        "howToUse": [
+            "Set the history slider.",
+            "Select one stock and up to 8 strategies.",
+            "Review the graph—points farther from the center (for positive metrics) or closer (for negative metrics) indicate better performance."
+        ]
+    },
+    {
+        "id": "single-eval-bar-history",
+        "category": "Single Evaluator",
+        "title": "Metric vs History Bar Graph",
+        "icon": "BarChartHorizontal",
+        "summary": "Tracks the historical performance of a single strategy for one stock and one metric across all historical points.",
+        "whatItDoes": "This bar graph tracks the historical performance of a single strategy for one stock and one metric across all historical points.",
+        "inputs": [
+            "Stock: Select one stock from a single-select dropdown.",
+            "Strategy: Choose one strategy from a single-select dropdown.",
+            "Metric: Pick one metric from a single-select dropdown."
+        ],
+        "output": "A bar graph:\n- X-axis: Historical points (History 0 to 99, with higher history numbers on the left).\n- Y-axis: Metric values.",
+        "whyUseIt": [
+            "Historical Trends: Reveals how a strategy’s performance evolves over time, highlighting consistency or volatility.",
+            "Long-Term View: Shows performance across all available history points."
+        ],
+        "howItHelps": "It helps assess whether a strategy is reliably effective for a stock over time, aiding long-term planning.",
+        "howToUse": [
+            "Select a stock, strategy, and metric.",
+            "Check the bars—higher bars at different history points indicate stronger past performance."
+        ]
+    },
+    {
+        "id": "single-eval-bar-stock",
+        "category": "Single Evaluator",
+        "title": "Metric vs Stock Bar Graph",
+        "icon": "BarChart2",
+        "summary": "Compares a single strategy’s performance across multiple stocks for one metric at a specific historical point.",
+        "whatItDoes": "This bar graph compares a single strategy’s performance across multiple stocks for one metric at a specific historical point.",
+        "inputs": [
+            "History: Set a historical point (0 to 99) with a slider.",
+            "Stocks: Select up to 10 stocks from a multi-select dropdown.",
+            "Strategy: Choose one strategy from a single-select dropdown.",
+            "Metric: Pick one metric from a single-select dropdown."
+        ],
+        "output": "A bar graph:\n- X-axis: Lists the selected stocks.\n- Y-axis: Shows metric values.",
+        "whyUseIt": [
+            "Cross-Stock Comparison: Identifies which stocks perform best with a strategy, unlike the time-focused Metric vs History graph.",
+            "Portfolio Optimization: Helps select the best stocks for a given strategy."
+        ],
+        "howItHelps": "It guides stock selection by showing where a strategy performs strongest at a specific time.",
+        "howToUse": [
+            "Set the history slider.",
+            "Select up to 10 stocks, one strategy, and one metric.",
+            "Review the bars—higher bars indicate better performance for specific stocks."
+        ]
+    },
+    {
+        "id": "double-eval-heatmap",
+        "category": "Double Evaluator",
+        "title": "Heatmap",
+        "icon": "LayoutGrid",
+        "summary": "Displays the performance of strategy pairs across multiple stocks for a single metric.",
+        "whatItDoes": "The Heatmap shows the performance of strategy pairs (one fixed strategy paired with multiple others) across multiple stocks for a single metric at a chosen historical point.",
+        "inputs": [
+            "History: Set a historical point (0 to 99) using a slider.",
+            "Stocks: Select up to 10 stocks from a multi-select dropdown.",
+            "Condition_1: Choose one fixed strategy from a single-select dropdown.",
+            "Condition_2: Pick up to 10 strategies to pair with Condition_1 from a multi-select dropdown.",
+            "Metric: Select one metric from a single-select dropdown."
+        ],
+        "output": "A heatmap:\n- Rows: Strategy pairs (Condition_1 + each Condition_2).\n- Columns: Stocks.\n- Cells: Metric performance values for the pair-stock combination.",
+        "whyUseIt": [
+            "Broad Pair Comparison: Evaluates multiple strategy pairs across several stocks, identifying top-performing combinations.",
+            "Portfolio-Wide Insights: Spots patterns in pair performance across different stocks."
+        ],
+        "howItHelps": "It helps you find strategy pairs that work well across your portfolio, enhancing diversification or focus.",
+        "howToUse": [
+            "Set the history slider.",
+            "Select up to 10 stocks, one Condition_1, up to 10 Condition_2 strategies, and a metric.",
+            "Check the heatmap—darker or lighter cells (per the color scale) indicate better or worse pair performance."
+        ]
+    },
+    {
+        "id": "double-eval-radial",
+        "category": "Double Evaluator",
+        "title": "Radial Graph",
+        "icon": "Radar",
+        "summary": "Shows how strategy pairs perform for a single stock across multiple metrics.",
+        "whatItDoes": "The Radial Graph displays how strategy pairs perform for a single stock across multiple metrics at a specific historical point.",
+        "inputs": [
+            "History: Set a historical point (0 to 99) with a slider.",
+            "Stock: Select one stock from a single-select dropdown.",
+            "Condition_1: Choose one fixed strategy from a single-select dropdown.",
+            "Condition_2: Pick up to 8 strategies to pair with Condition_1 from a multi-select dropdown."
+        ],
+        "output": "A radial graph:\n- Spokes: Strategy pairs (Condition_1 + each Condition_2).\n- Colored Lines: Metrics (e.g., Sharpe Ratio, Total Return).\n- Intersection Points: Performance scores (center is negative, middle is zero, outer is positive).",
+        "whyUseIt": [
+            "Multi-Metric Pair Analysis: Assesses how pairs balance across metrics like risk and return for one stock.",
+            "Deep Pair Insights: Focuses on pair performance for a specific stock, offering detailed evaluation."
+        ],
+        "howItHelps": "It guides you in selecting strategy pairs that optimize multiple performance metrics for a stock.",
+        "howToUse": [
+            "Set the history slider.",
+            "Select one stock, one Condition_1, and up to 8 Condition_2 strategies.",
+            "Review the graph—points farther from the center (for positive metrics) indicate stronger pair performance."
+        ]
+    },
+    {
+        "id": "double-eval-bar-history",
+        "category": "Double Evaluator",
+        "title": "Metric vs History Bar Graph",
+        "icon": "BarChartHorizontal",
+        "summary": "Tracks the historical performance of a strategy pair for one stock over time.",
+        "whatItDoes": "This bar graph tracks the historical performance of a specific strategy pair for one stock and one metric across all historical points.",
+        "inputs": [
+            "Stock: Select one stock from a single-select dropdown.",
+            "Condition_1: Choose one strategy from a single-select dropdown.",
+            "Condition_2: Pick one strategy to pair with Condition_1 from a single-select dropdown.",
+            "Metric: Select one metric from a single-select dropdown."
+        ],
+        "output": "A bar graph:\n- X-axis: Historical points (History 0 to 99, with higher history numbers on the left).\n- Y-axis: Metric values.",
+        "whyUseIt": [
+            "Pair Consistency Tracking: Shows how a strategy pair performs over time, revealing long-term reliability.",
+            "Historical Depth: Analyzes pair performance across all available history points."
+        ],
+        "howItHelps": "It confirms whether a strategy pair is consistently effective for a stock, supporting long-term strategy planning.",
+        "howToUse": [
+            "Select a stock, two strategies (Condition_1 and Condition_2), and a metric.",
+            "Check the bars—higher bars at different history points indicate stronger past pair performance."
+        ]
+    },
+    {
+        "id": "double-eval-bar-stock",
+        "category": "Double Evaluator",
+        "title": "Metric vs Stock Bar Graph",
+        "icon": "BarChart2",
+        "summary": "Compares a strategy pair’s performance across multiple stocks.",
+        "whatItDoes": "This bar graph compares a specific strategy pair’s performance across multiple stocks for one metric at a chosen historical point.",
+        "inputs": [
+            "History: Set a historical point (0 to 99) with a slider.",
+            "Stocks: Select up to 10 stocks from a multi-select dropdown.",
+            "Condition_1: Choose one strategy from a single-select dropdown.",
+            "Condition_2: Pick one strategy to pair with Condition_1 from a single-select dropdown.",
+            "Metric: Select one metric from a single-select dropdown."
+        ],
+        "output": "A bar graph:\n- X-axis: Lists the selected stocks.\n- Y-axis: Shows metric values.",
+        "whyUseIt": [
+            "Pair Stock Comparison: Identifies which stocks perform best with a specific strategy pair, unlike the time-focused version.",
+            "Portfolio Fit: Helps select stocks that maximize pair performance."
+        ],
+        "howItHelps": "It guides stock selection for a strategy pair, optimizing your portfolio for specific combinations.",
+        "howToUse": [
+            "Set the history slider.",
+            "Select up to 10 stocks, two strategies (Condition_1 and Condition_2), and a metric.",
+            "Review the bars—higher bars indicate better pair performance for specific stocks."
+        ]
+    },
+    {
+        "id": "double-eval-chord",
+        "category": "Double Evaluator",
+        "title": "Chord Diagram",
+        "icon": "CopyCheck",
+        "summary": "Visualizes the performance synergy of strategy pairs for a single stock and metric.",
+        "whatItDoes": "The Chord Diagram visualizes the performance of strategy pairs (from a selected pool of 3 to 6 strategies) for one stock and one metric at a specific historical point.",
+        "inputs": [
+            "History: Set a historical point (0 to 99) with a slider.",
+            "Stock: Select one stock from a single-select dropdown.",
+            "Metric: Choose one metric from a single-select dropdown.",
+            "Strategies: Pick 3 to 6 strategies from a multi-select dropdown."
+        ],
+        "output": "A chord diagram:\n- Arcs: Represent individual strategies.\n- Bands: Connect pairs of strategies, with thickness showing performance strength.",
+        "whyUseIt": [
+            "Intuitive Pair Insights: Visually highlights which strategy pairs work best together through band thickness, offering a unique perspective compared to grid or spoke-based subtools.",
+            "Synergy Visualization: Quickly identifies complementary strategies for a stock, simplifying complex pair analysis."
+        ],
+        "howItHelps": "It makes it easy to spot high-performing strategy pairs, helping you build synergistic trading approaches for a stock.",
+        "howToUse": [
+            "Set the history slider.",
+            "Select one stock, one metric, and 3 to 6 strategies.",
+            "Review the diagram—thicker bands between arcs indicate stronger pair performance."
+        ]
+    },
+    {
+        "id": "backtester",
+        "category": "Backtester",
+        "title": "Backtester",
+        "icon": "History",
+        "summary": "Evaluates the historical performance of a custom combination of strategies for one stock over a specified period, displaying results in a table.",
+        "whatItDoes": "The Backtester evaluates the historical performance of a custom combination of strategies for one stock over a specified period, displaying results in a table.",
+        "inputs": [
+            "Stock: Select one stock from a single-select dropdown.",
+            "Stop-Loss: Enter a percentage (0 to 100).",
+            "Brokerage: Enter a percentage (0 to 100).",
+            "Strategies: Choose a combination of strategies from a multi-select dropdown.",
+            "Duration: Enter a valid integer value for the trading cycle length."
+        ],
+        "output": "A table showing seven metrics (e.g., Sharpe Ratio, Total Return, Profitable Trades).",
+        "whyUseIt": [
+            "Custom Strategy Testing: Tests your unique strategy combinations, unlike predefined analyses in other tools.",
+            "Realistic Simulation: Factors in stop-loss and brokerage for practical performance insights."
+        ],
+        "howItHelps": "It validates your custom strategy mix, showing how it would have performed historically to refine your approach.",
+        "howToUse": [
+            "Select a stock, set stop-loss and brokerage percentages, choose strategies, and specify a duration.",
+            "Review the table—check metrics to assess the strategy combination’s historical performance."
+        ]
+    }
+]

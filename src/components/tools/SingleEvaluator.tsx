@@ -9,16 +9,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Select as ShadSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, HelpCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 
 import { runSingleAnalyzer } from '@/api/tools';
 import type { StockMetrics, SingleAnalyzerAPIOutput } from '@/api/tools';
 import { conditionMapIdName, tickerMap } from '@/components/tools/single/components/Mappings';
-import { METRICS } from '@/lib/constants';
+import { METRICS, NORMALIZATION_MAX_VALUES } from '@/lib/constants';
 
 import { BarGraph } from '@/components/charts/BarGraph';
 import { RadarChart } from '@/components/charts/RadarChart';
@@ -35,6 +36,8 @@ const metricOptions: StringSelectOption[] = METRICS.map(m => ({ value: m.key, la
 export default function SingleEvaluator() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('heatmap');
+
 
   // Control states
   const [tickerSize] = useState('1d'); // Fixed for now
@@ -142,20 +145,43 @@ export default function SingleEvaluator() {
     if (!currentHistoryData || !radarStock) return [];
 
     const stock = radarStock;
-    const data: any[] = [];
+    const rawData: any[] = [];
     
     selectedConditions.slice(0, 8).forEach(cond => {
         const conditionKey = `c${cond.value}`;
         const conditionDataForStock = currentHistoryData[conditionKey]?.[stock.value];
         if (conditionDataForStock) {
-            data.push({
+            rawData.push({
                 condition: cond.label,
                 ...conditionDataForStock
             });
         }
     });
     
-    return data;
+    // Normalize the data
+    const normalizedData = rawData.map(item => {
+        const newItem = { ...item };
+        METRICS.forEach(({ key }) => {
+            const value = newItem[key];
+            if (typeof value === 'number') {
+                const max = NORMALIZATION_MAX_VALUES[key];
+                let normalizedValue;
+                
+                // Invert metrics where lower is better
+                if (key === 'max_drawdown' || key === 'loss_trades') {
+                    normalizedValue = 1 - (value / max);
+                } else {
+                    normalizedValue = value / max;
+                }
+                
+                // Clamp the value between -1 and 1
+                newItem[key] = Math.max(-1, Math.min(1, normalizedValue));
+            }
+        });
+        return newItem;
+    });
+
+    return normalizedData;
   }
 
   const getLeaderboardData = () => {
@@ -227,30 +253,6 @@ export default function SingleEvaluator() {
 
   const radarData = getRadarData();
 
-  const radarDomain = useMemo(() => {
-      if (radarData.length === 0) return [-1, 1];
-
-      let minVal = Infinity;
-      let maxVal = -Infinity;
-
-      radarData.forEach(item => {
-          radarChartRadars.forEach(radar => {
-              const value = item[radar.dataKey];
-              if (typeof value === 'number') {
-                  if (value < minVal) minVal = value;
-                  if (value > maxVal) maxVal = value;
-              }
-          });
-      });
-      
-      if (minVal === Infinity || maxVal === -Infinity) return [-1, 1];
-
-      const padding = Math.abs(maxVal - minVal) * 0.1 || 1;
-      
-      return [Math.floor(minVal - padding), Math.ceil(maxVal + padding)];
-  }, [radarData, radarChartRadars]);
-
-
   return (
     <Card>
       <CardHeader>
@@ -258,55 +260,127 @@ export default function SingleEvaluator() {
         <CardDescription>Analyze the historical performance of individual trading conditions across various stocks and metrics.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border rounded-lg mb-6">
-            <div className="space-y-2">
-                <Label>Stocks (Max 9)</Label>
-                <Select isMulti options={stockOptions} value={selectedStocks} onChange={(o) => setSelectedStocks(o as readonly StringSelectOption[])} styles={reactSelectStyles}/>
-            </div>
-            <div className="space-y-2">
-                <Label>Conditions (Max 9)</Label>
-                <Select isMulti options={conditionOptions} value={selectedConditions} onChange={(o) => setSelectedConditions(o as readonly NumberSelectOption[])} styles={reactSelectStyles}/>
-            </div>
-            <div className="space-y-2">
-                <Label>Metric (for Heatmap/Leaderboard)</Label>
-                <ShadSelect value={selectedMetric} onValueChange={(v) => setSelectedMetric(v as Metric)}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
-                    <SelectContent>{metricOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
-                </ShadSelect>
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="duration">Duration (days)</Label>
-                <Input id="duration" type="number" value={duration} onChange={(e) => setDuration(parseInt(e.target.value, 10) || 0)} min="1" />
-            </div>
-        </div>
-        <Button onClick={handleRunAnalysis} disabled={isLoading} className="w-full mb-6">
-            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Run Analysis
-        </Button>
-
-        <div className="space-y-2 mb-6 p-4 border rounded-lg">
-            <Label>History Point: {historyIndex}</Label>
-            <Slider 
-                value={[historyIndex]} 
-                onValueChange={(v) => setHistoryIndex(v[0])} 
-                max={99} 
-                step={1} 
-                disabled={!hasData || isLoading}
-            />
-        </div>
-
-        {error && <p className="text-sm font-medium text-destructive text-center mb-4">{error}</p>}
-        
-        <Tabs defaultValue="heatmap" className="w-full">
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 gap-1 h-auto p-1">
+         <Tabs defaultValue="heatmap" className="w-full" onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 gap-1 h-auto p-1 mb-4">
             <TabsTrigger value="heatmap">Heatmap</TabsTrigger>
             <TabsTrigger value="radar">Metrics Overview</TabsTrigger>
             <TabsTrigger value="analysis">Performance Analysis</TabsTrigger>
             <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
           </TabsList>
 
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border rounded-lg">
+                <div className="space-y-2">
+                    <Label>Stocks (Max 9)</Label>
+                    <Select isMulti options={stockOptions} value={selectedStocks} onChange={(o) => setSelectedStocks(o as readonly StringSelectOption[])} styles={reactSelectStyles}/>
+                </div>
+                <div className="space-y-2">
+                    <Label>Conditions (Max 9)</Label>
+                    <Select isMulti options={conditionOptions} value={selectedConditions} onChange={(o) => setSelectedConditions(o as readonly NumberSelectOption[])} styles={reactSelectStyles}/>
+                </div>
+                <div className="space-y-2">
+                    <Label>Duration (days)</Label>
+                    <ShadSelect
+                        value={String(duration)}
+                        onValueChange={(value) => setDuration(parseInt(value, 10))}
+                    >
+                        <SelectTrigger id="duration">
+                            <SelectValue placeholder="Select duration" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="20">20</SelectItem>
+                            <SelectItem value="30">30</SelectItem>
+                            <SelectItem value="45">45</SelectItem>
+                        </SelectContent>
+                    </ShadSelect>
+                </div>
+            </div>
+
+            {/* Sub-tool specific controls */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg items-end">
+                {(activeTab === 'heatmap' || activeTab === 'leaderboard') && (
+                    <div className="space-y-2">
+                        <Label>Metric</Label>
+                        <ShadSelect value={selectedMetric} onValueChange={(v) => setSelectedMetric(v as Metric)}>
+                            <SelectTrigger><SelectValue/></SelectTrigger>
+                            <SelectContent>{metricOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
+                        </ShadSelect>
+                    </div>
+                )}
+                {activeTab === 'radar' && (
+                    <div className="space-y-2">
+                        <Label>Stock</Label>
+                        <ShadSelect
+                            value={radarStock?.value}
+                            onValueChange={(value) => setRadarStock(selectedStocks.find(s => s.value === value) || null)}
+                            disabled={selectedStocks.length === 0 || isLoading || !hasData}
+                        >
+                            <SelectTrigger><SelectValue placeholder="Select a stock" /></SelectTrigger>
+                            <SelectContent>{selectedStocks.map(opt => (<SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>))}</SelectContent>
+                        </ShadSelect>
+                    </div>
+                )}
+                {activeTab === 'analysis' && (
+                    <>
+                        <div className="space-y-2">
+                          <Label>Analysis Mode</Label>
+                          <RadioGroup defaultValue="stock-fixed" value={analysisMode} onValueChange={(v) => setAnalysisMode(v as any)} className="flex space-x-4 pt-2">
+                              <div className="flex items-center space-x-2"><RadioGroupItem value="stock-fixed" id="stock-fixed" /><Label htmlFor="stock-fixed" className="font-normal">Stock Fixed</Label></div>
+                              <div className="flex items-center space-x-2"><RadioGroupItem value="time-fixed" id="time-fixed" /><Label htmlFor="time-fixed" className="font-normal">Time Fixed</Label></div>
+                          </RadioGroup>
+                        </div>
+                        {analysisMode === 'stock-fixed' && (
+                          <div className="space-y-2">
+                            <Label>Stock</Label>
+                            <ShadSelect value={analysisStock?.value} onValueChange={v => setAnalysisStock(selectedStocks.find(s => s.value === v) || null)}>
+                                <SelectTrigger><SelectValue placeholder="Select a stock" /></SelectTrigger>
+                                <SelectContent>{selectedStocks.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
+                            </ShadSelect>
+                          </div>
+                        )}
+                        <div className="space-y-2">
+                          <Label>Condition</Label>
+                          <ShadSelect value={String(analysisCondition?.value)} onValueChange={v => setAnalysisCondition(selectedConditions.find(c => c.value === parseInt(v)) || null)}>
+                              <SelectTrigger><SelectValue placeholder="Select a condition" /></SelectTrigger>
+                              <SelectContent>{selectedConditions.map(opt => <SelectItem key={opt.value} value={String(opt.value)}>{opt.label}</SelectItem>)}</SelectContent>
+                          </ShadSelect>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Metric</Label>
+                          <ShadSelect value={analysisMetric} onValueChange={(v) => setAnalysisMetric(v as Metric)}>
+                              <SelectTrigger><SelectValue placeholder="Select a metric" /></SelectTrigger>
+                              <SelectContent>{metricOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
+                          </ShadSelect>
+                        </div>
+                    </>
+                )}
+            </div>
+
+            <Button onClick={handleRunAnalysis} disabled={isLoading} className="w-full">
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Run Analysis
+            </Button>
+            <div className="space-y-2 p-4 border rounded-lg">
+                <Label>History Point: {historyIndex}</Label>
+                <Slider 
+                    value={[historyIndex]} 
+                    onValueChange={(v) => setHistoryIndex(v[0])} 
+                    max={99} 
+                    step={1} 
+                    disabled={!hasData || isLoading}
+                />
+            </div>
+            {error && <p className="text-sm font-medium text-destructive text-center">{error}</p>}
+          </div>
+        
           <TabsContent value="heatmap">
-            <Card className="mt-4">
+            <Accordion type="single" collapsible className="w-full my-4 bg-card/50 px-4 rounded-lg border border-border/50">
+              <AccordionItem value="item-1" className="border-b-0">
+                <AccordionTrigger className="hover:no-underline"><div className="flex items-center gap-2"><HelpCircle className="h-5 w-5 text-accent" /><span>How to use the Heatmap</span></div></AccordionTrigger>
+                <AccordionContent><div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1"><p>This tool helps you see at a glance the performance of multiple trading strategies across multiple stocks for a single chosen metric at a specific historical point.</p><ul><li><strong>Rows:</strong> Represent trading strategies (e.g., Support and Resistance).</li><li><strong>Columns:</strong> Represent stocks (e.g., ABBOTTINDIA).</li><li><strong>Cell Values:</strong> Show the performance of the i-th strategy for the j-th stock, based on the chosen metric at the historical point set by the slider.</li></ul></div></AccordionContent>
+              </AccordionItem>
+            </Accordion>
+            <Card>
               <CardHeader><CardTitle>Heatmap Analysis</CardTitle><CardDescription>Compare performance of conditions across stocks for the selected metric and history point.</CardDescription></CardHeader>
               <CardContent>
                 {isLoading ? <div className="flex justify-center items-center h-80"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : 
@@ -329,12 +403,15 @@ export default function SingleEvaluator() {
                             textTransform: 'capitalize',
                             width: '200px'
                           })}
-                          cellStyle={(_x, _y, ratio) => ({
-                            background: `hsl(220, 90%, ${75 - 50 * ratio}%)`,
-                            fontSize: '12px',
-                            color: ratio > 0.5 ? '#fff' : 'hsl(var(--foreground))',
-                            border: '1px solid hsl(var(--border))',
-                          })}
+                          cellStyle={(_x, _y, ratio) => {
+                            const hue = ratio * 120; // 0=red, 120=green
+                            return {
+                              background: `hsl(${hue}, 90%, 60%)`,
+                              fontSize: '12px',
+                              color: 'hsl(var(--foreground))',
+                              border: '1px solid hsl(var(--border))',
+                            }
+                          }}
                           cellHeight="2rem"
                           xLabelsPos="bottom"
                           square={false}
@@ -350,34 +427,21 @@ export default function SingleEvaluator() {
           </TabsContent>
 
           <TabsContent value="radar">
-             <Card className="mt-4">
+             <Accordion type="single" collapsible className="w-full my-4 bg-card/50 px-4 rounded-lg border border-border/50">
+              <AccordionItem value="item-1" className="border-b-0">
+                <AccordionTrigger className="hover:no-underline"><div className="flex items-center gap-2"><HelpCircle className="h-5 w-5 text-accent" /><span>How to use the Radial Graph</span></div></AccordionTrigger>
+                <AccordionContent><div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1"><p>This tool helps you see at a glance the performance of multiple trading strategies for a given stock across multiple metrics at a specific historical point.</p><ul><li><strong>Spokes:</strong> Each spoke corresponds to a trading strategy (e.g., Bollinger Bands).</li><li><strong>Colored Lines:</strong> Each line represents a performance metric (e.g., Sharpe Ratio).</li><li><strong>Intersection Points:</strong> Indicate the performance of the i-th strategy for the j-th metric for the selected stock at the historical point set by the slider.</li></ul></div></AccordionContent>
+              </AccordionItem>
+            </Accordion>
+             <Card>
               <CardHeader><CardTitle>Metrics Overview Radar</CardTitle><CardDescription>Holistic view of all metrics for up to 8 conditions on a single stock.</CardDescription></CardHeader>
               <CardContent>
-                <div className="mb-4 max-w-xs">
-                    <Label>Select Stock for Radar View</Label>
-                    <ShadSelect
-                        value={radarStock?.value}
-                        onValueChange={(value) => {
-                            setRadarStock(selectedStocks.find(s => s.value === value) || null);
-                        }}
-                        disabled={selectedStocks.length === 0 || isLoading}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select a stock" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {selectedStocks.map(opt => (
-                                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </ShadSelect>
-                </div>
                  {isLoading ? <div className="flex justify-center items-center h-80"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> :
                   radarData.length > 0 ?
                   <RadarChart 
                     data={radarData}
                     angleKey="condition"
-                    domain={radarDomain}
+                    domain={[-1, 1]}
                     radars={radarChartRadars}
                   /> : <div className="text-center h-80 flex items-center justify-center text-muted-foreground">Select a stock to view Radar. Run an analysis.</div>
                  }
@@ -386,47 +450,28 @@ export default function SingleEvaluator() {
           </TabsContent>
 
           <TabsContent value="analysis">
-            <Card className="mt-4">
+             <Accordion type="single" collapsible className="w-full my-4 bg-card/50 px-4 rounded-lg border border-border/50">
+                <AccordionItem value="item-1" className="border-b-0">
+                  <AccordionTrigger className="hover:no-underline"><div className="flex items-center gap-2"><HelpCircle className="h-5 w-5 text-accent" /><span>How to use the Bar Graphs</span></div></AccordionTrigger>
+                  <AccordionContent>
+                    <div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1">
+                      <h4>Metric vs History Bar Graph</h4>
+                      <p>This tool shows the historical performance of a chosen trading strategy for a selected stock, based on a chosen metric.</p>
+                      <ul><li><strong>X-axis:</strong> Represents different historical points (labeled as History 0, History 1, etc.).</li><li><strong>Y-axis:</strong> Displays the values of the chosen metric.</li><li><strong>Purpose:</strong> Reveals how the strategy’s performance evolves over time for the stock.</li></ul>
+                      <hr className="my-4" />
+                      <h4>Metric vs Stock Bar Graph</h4>
+                      <p>This tool shows the performance of a chosen trading strategy across multiple stocks at a given historical point, adjustable via slider.</p>
+                      <ul><li><strong>X-axis:</strong> Lists the stocks.</li><li><strong>Y-axis:</strong> Displays the values of the chosen metric.</li><li><strong>Purpose:</strong> Compares the strategy’s effectiveness across different stocks at the selected time.</li></ul>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            <Card>
               <CardHeader>
                   <CardTitle>Performance Analysis</CardTitle>
                   <CardDescription>Analyze condition performance over time or across different stocks.</CardDescription>
               </CardHeader>
               <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg mb-6 items-end">
-                      <div className="space-y-2">
-                          <Label>Analysis Mode</Label>
-                          <RadioGroup defaultValue="stock-fixed" value={analysisMode} onValueChange={(v) => setAnalysisMode(v as any)} className="flex space-x-4">
-                              <div className="flex items-center space-x-2"><RadioGroupItem value="stock-fixed" id="stock-fixed" /><Label htmlFor="stock-fixed" className="font-normal">Stock Fixed</Label></div>
-                              <div className="flex items-center space-x-2"><RadioGroupItem value="time-fixed" id="time-fixed" /><Label htmlFor="time-fixed" className="font-normal">Time Fixed</Label></div>
-                          </RadioGroup>
-                      </div>
-
-                      {analysisMode === 'stock-fixed' && (
-                          <div className="space-y-2">
-                              <Label>Stock</Label>
-                              <ShadSelect value={analysisStock?.value} onValueChange={v => setAnalysisStock(selectedStocks.find(s => s.value === v) || null)}>
-                                  <SelectTrigger><SelectValue placeholder="Select a stock" /></SelectTrigger>
-                                  <SelectContent>{selectedStocks.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
-                              </ShadSelect>
-                          </div>
-                      )}
-
-                      <div className="space-y-2">
-                          <Label>Condition</Label>
-                          <ShadSelect value={String(analysisCondition?.value)} onValueChange={v => setAnalysisCondition(selectedConditions.find(c => c.value === parseInt(v)) || null)}>
-                              <SelectTrigger><SelectValue placeholder="Select a condition" /></SelectTrigger>
-                              <SelectContent>{selectedConditions.map(opt => <SelectItem key={opt.value} value={String(opt.value)}>{opt.label}</SelectItem>)}</SelectContent>
-                          </ShadSelect>
-                      </div>
-
-                      <div className="space-y-2">
-                          <Label>Metric</Label>
-                          <ShadSelect value={analysisMetric} onValueChange={(v) => setAnalysisMetric(v as Metric)}>
-                              <SelectTrigger><SelectValue placeholder="Select a metric" /></SelectTrigger>
-                              <SelectContent>{metricOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
-                          </ShadSelect>
-                      </div>
-                  </div>
                   <div className="min-h-[400px]">
                   {isLoading ? <div className="flex justify-center items-center h-80"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : 
                   !hasData ? <div className="text-center h-80 flex items-center justify-center text-muted-foreground">No data to display. Run an analysis.</div> :

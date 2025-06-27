@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import {
   RadarChart as RechartsRadarChart,
   Radar,
@@ -34,6 +35,16 @@ export function RadarChart<T extends Record<string, any>>({
   title,
   domain = [-1, 1], // Default domain to handle negative values
 }: RadarChartProps<T>) {
+  const [hoveredRadar, setHoveredRadar] = useState<string | null>(null);
+
+  const handleMouseEnter = (o: any) => {
+    setHoveredRadar(o.dataKey);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredRadar(null);
+  };
+
   return (
     <div className="w-full h-96">
        {title && <h3 className="text-lg font-semibold text-center mb-4">{title}</h3>}
@@ -44,15 +55,16 @@ export function RadarChart<T extends Record<string, any>>({
           <PolarRadiusAxis angle={30} domain={domain} />
           {radars.map((radar) => (
             <Radar
-              key={radar.name}
+              key={radar.dataKey}
               name={radar.name}
               dataKey={radar.dataKey}
               stroke={radar.stroke}
               fill={radar.fill}
-              fillOpacity={0.6}
+              fillOpacity={hoveredRadar === null ? 0.6 : (hoveredRadar === radar.dataKey ? 0.8 : 0.2)}
+              strokeOpacity={hoveredRadar === null ? 1 : (hoveredRadar === radar.dataKey ? 1 : 0.4)}
             />
           ))}
-          <Legend />
+          <Legend onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
           <Tooltip 
              contentStyle={{
               background: 'hsl(var(--background))',

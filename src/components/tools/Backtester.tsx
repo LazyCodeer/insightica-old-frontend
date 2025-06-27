@@ -22,10 +22,9 @@ type NumberSelectOption = { value: number; label: string };
 
 const stockOptions: StringSelectOption[] = Object.entries(tickerMap).map(([value, label]) => ({ value, label }));
 const conditionOptions: NumberSelectOption[] = Object.entries(conditionMapIdName).map(([value, label]) => ({ value: parseInt(value.slice(1)), label }));
-const tickerSizeOptions: StringSelectOption[] = [
+const tickerSizeOptions: { value: string; label: string; disabled?: boolean }[] = [
     { value: '1d', label: '1 Day' },
-    { value: '1wk', label: '1 Week' },
-    { value: '1mo', label: '1 Month' },
+    { value: '1m', label: '1 Month (coming soon!)', disabled: true },
 ];
 
 const metricLabels: { key: keyof BacktestResult; label: string }[] = [
@@ -122,7 +121,7 @@ export default function Backtester() {
                             <ShadSelect value={tickerSize} onValueChange={setTickerSize}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                    {tickerSizeOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                                    {tickerSizeOptions.map(opt => <SelectItem key={opt.value} value={opt.value} disabled={opt.disabled}>{opt.label}</SelectItem>)}
                                 </SelectContent>
                             </ShadSelect>
                         </div>
@@ -130,12 +129,34 @@ export default function Backtester() {
                             <Label htmlFor="duration">Duration (days)</Label>
                             <Input id="duration" type="number" value={duration} onChange={(e) => setDuration(parseInt(e.target.value, 10) || 0)} min="1" />
                         </div>
+                        
                         <div className="space-y-2">
-                            <Label>Brokerage (%): {brokerage.toFixed(2)}</Label>
+                            <div className="flex justify-between items-center">
+                                <Label htmlFor="brokerage">Brokerage (%)</Label>
+                                <Input 
+                                    id="brokerage"
+                                    type="number"
+                                    value={brokerage}
+                                    onChange={(e) => setBrokerage(parseFloat(e.target.value) || 0)}
+                                    className="w-24 h-8"
+                                    step="0.01"
+                                />
+                            </div>
                             <Slider value={[brokerage]} onValueChange={(v) => setBrokerage(v[0])} max={5} step={0.01} />
                         </div>
+
                         <div className="space-y-2">
-                            <Label>Stoploss (%): {stoploss.toFixed(2)}</Label>
+                            <div className="flex justify-between items-center">
+                                <Label htmlFor="stoploss">Stoploss (%)</Label>
+                                <Input 
+                                    id="stoploss"
+                                    type="number"
+                                    value={stoploss}
+                                    onChange={(e) => setStoploss(parseFloat(e.target.value) || 0)}
+                                    className="w-24 h-8"
+                                    step="0.1"
+                                />
+                            </div>
                             <Slider value={[stoploss]} onValueChange={(v) => setStoploss(v[0])} max={20} step={0.1} />
                         </div>
                         

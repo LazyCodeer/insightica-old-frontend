@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/apiClient';
-import { signupUser, getMe } from '@/api/user';
+import { signupUser } from '@/api/user';
 import type { SignupFormValues } from '@/components/auth/SignupForm';
 import type { AppUser } from '@/types/user';
 
@@ -36,23 +36,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const router = useRouter();
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      const accessToken = localStorage.getItem('insightica_access_token');
-      if (accessToken) {
-        try {
-          // The interceptor will handle token refresh if needed
-          const user = await getMe();
+    const initializeAuth = () => {
+      setLoading(true);
+      try {
+        const accessToken = localStorage.getItem('insightica_access_token');
+        const storedUser = localStorage.getItem('insightica_user');
+
+        if (accessToken && storedUser) {
+          const user: AppUser = JSON.parse(storedUser);
           setCurrentUser(user);
-        } catch (error) {
-          console.error("Failed to authenticate with stored token:", error);
-          // Cleanup if getMe fails even after potential refresh attempt
-          setCurrentUser(null);
-          localStorage.removeItem('insightica_access_token');
-          localStorage.removeItem('insightica_refresh_token');
-          delete apiClient.defaults.headers.common['Authorization'];
+          apiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
         }
+      } catch (error) {
+        console.error("Failed to initialize auth from localStorage:", error);
+        // Clear potentially corrupted data
+        setCurrentUser(null);
+        localStorage.removeItem('insightica_access_token');
+        localStorage.removeItem('insightica_refresh_token');
+        localStorage.removeItem('insightica_user');
+        delete apiClient.defaults.headers.common['Authorization'];
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initializeAuth();
@@ -60,21 +65,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (email: string, pass: string) => {
     setLoading(true);
-    // The backend endpoint for token expects a 'username' field.
-    // We are passing the email as the username.
     const response = await apiClient.post('/user/signin/', { email: email, password: pass });
     const { access, refresh, user } = response.data;
     
     localStorage.setItem('insightica_access_token', access);
     localStorage.setItem('insightica_refresh_token', refresh);
+    localStorage.setItem('insightica_user', JSON.stringify(user));
     
     apiClient.defaults.headers.common['Authorization'] = `Bearer ${access}`;
     
-    // const user = await getMe();
     setCurrentUser(user);
     
     setLoading(false);
-    router.push('/');
+    router.push('/tools');
   };
 
   const signup = async (userData: SignupFormValues) => {
@@ -99,6 +102,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setCurrentUser(null);
         localStorage.removeItem('insightica_access_token');
         localStorage.removeItem('insightica_refresh_token');
+        localStorage.removeItem('insightica_user');
         delete apiClient.defaults.headers.common['Authorization'];
         setLoading(false);
         router.push('/');
@@ -113,9 +117,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     logout,
   };
 
+  // Render children only when not loading to prevent layout shifts or flashes
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {loading ? null : children}
     </AuthContext.Provider>
   );
 };
