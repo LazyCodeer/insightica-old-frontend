@@ -1,7 +1,7 @@
 
 [
     {  
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/1.png",
         "imageHint": "chart graph",
         "id": "sma-general",
         "title": "Simple Moving Average (SMA)",
@@ -19,7 +19,7 @@
         "implementation": "Our Predictor tool tests various SMA periods against historical data to optimize settings for specific securities and timeframes. The Backtester allows combining SMAs with other indicators for sophisticated strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/2.png",
         "imageHint": "chart graph",
         "id": "ema-general",
         "title": "Exponential Moving Average (EMA)",
@@ -37,7 +37,7 @@
         "implementation": "Our tools allow testing different EMA periods and combining them with other indicators. The Backtester evaluates EMA-based strategies across various market conditions."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/3.png",
         "imageHint": "chart arrow",
         "id": "sma10-sma50-crossover",
         "title": "SMA10 over SMA50 Crossover",
@@ -53,7 +53,7 @@
         "implementation": "Our tools test optimal SMA periods and combine crossovers with RSI or volume for confirmation. The Backtester simulates historical performance to refine strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/4.png",
         "imageHint": "chart arrow",
         "id": "sma50-sma200-crossover",
         "title": "SMA50 over SMA200 Crossover",
@@ -69,7 +69,7 @@
         "implementation": "Our Backtester evaluates crossover performance historically, allowing combination with RSI or volume confirmation for enhanced signals."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/5.png",
         "imageHint": "chart arrow",
         "id": "ema10-ema50-crossover",
         "title": "EMA10 over EMA50 Crossover",
@@ -85,7 +85,7 @@
         "implementation": "Our tools test EMA crossover settings and combine with momentum indicators like RSI. The Backtester optimizes strategies using historical data."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/6.png",
         "imageHint": "chart arrow",
         "id": "ema20-ema50-crossover",
         "title": "EMA20 over EMA50 Crossover",
@@ -101,7 +101,7 @@
         "implementation": "Our tools optimize EMA periods and combine with volume indicators. The Backtester evaluates historical performance."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/7.png",
         "imageHint": "chart arrow",
         "id": "ema20-ema200-crossover",
         "title": "EMA20 over EMA200 Crossover",
@@ -117,7 +117,7 @@
         "implementation": "Our tools test crossover settings and combine with ADX for trend strength. The Backtester simulates performance."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/8.png",
         "imageHint": "chart arrow",
         "id": "ema50-ema200-crossover",
         "title": "EMA50 over EMA200 Crossover",
@@ -133,7 +133,7 @@
         "implementation": "Our tools test EMA crossover settings and combine with momentum indicators like RSI. The Backtester optimizes strategies using historical data."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/3.png",
         "imageHint": "chart graph",
         "id": "rsi",
         "title": "Relative Strength Index (RSI)",
@@ -149,7 +149,7 @@
         "implementation": "Our tools allow testing different RSI periods and thresholds. The Evaluator compares RSI-based strategies against other approaches."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/4.png",
         "imageHint": "chart arrow",
         "id": "macd",
         "title": "Moving Average Convergence Divergence (MACD)",
@@ -165,7 +165,7 @@
         "implementation": "Our tools customize MACD parameters and test across timeframes. The Backtester simulates historical performance."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/5.png",
         "imageHint": "chart waves",
         "id": "bollinger-bands",
         "title": "Bollinger Bands",
@@ -181,7 +181,7 @@
         "implementation": "Our Predictor optimizes Bollinger Band settings. The Backtester tests breakout or bounce strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/6.png",
         "imageHint": "chart bar",
         "id": "obv",
         "title": "On-Balance Volume (OBV)",
@@ -196,7 +196,7 @@
         "implementation": "Our tools test OBV strategies and combine with other indicators. The Backtester evaluates trend confirmation."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/7.png",
         "imageHint": "chart bar",
         "id": "volume-rate-of-change",
         "title": "Volume Rate of Change",
@@ -211,7 +211,7 @@
         "implementation": "Our tools test Volume Rate of Change settings. The Backtester assesses its effectiveness in spotting trend shifts."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/8.png",
         "imageHint": "chart bar",
         "id": "accumulation-distribution",
         "title": "Accumulation/Distribution Line",
@@ -226,7 +226,7 @@
         "implementation": "Our tools test A/D strategies. The Backtester evaluates divergence-based performance."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/9.png",
         "imageHint": "chart bar",
         "id": "chaikin-money-flow",
         "title": "Chaikin Money Flow (CMF)",
@@ -241,7 +241,7 @@
         "implementation": "Our tools calculate CMF dynamically. The Backtester tests trend confirmation strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/10.png",
         "imageHint": "chart lines",
         "id": "fibonacci-retracement",
         "title": "Fibonacci Retracement",
@@ -257,7 +257,7 @@
         "implementation": "Our tools auto-identify highs/lows for Fibonacci placement. The Backtester tests reactions at these levels."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/11.png",
         "imageHint": "chart graph",
         "id": "stochastic-oscillator",
         "title": "Stochastic Oscillator",
@@ -274,7 +274,7 @@
         "implementation": "Our tools test stochastic settings. The Evaluator assesses performance in various markets."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/12.png",
         "imageHint": "chart speed",
         "id": "williams-percent-range",
         "title": "Williams %R",
@@ -289,7 +289,7 @@
         "implementation": "Our tools adjust %R periods. The Backtester tests reversal strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/13.png",
         "imageHint": "chart activity",
         "id": "adx",
         "title": "Average Directional Index (ADX)",
@@ -305,7 +305,7 @@
         "implementation": "Our tools test ADX settings. The Backtester evaluates trend-based strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/14.png",
         "imageHint": "chart cloud",
         "id": "ichimoku-cloud",
         "title": "Ichimoku Cloud",
@@ -321,7 +321,7 @@
         "implementation": "Our tools plot Ichimoku Clouds and test parameters. The Backtester evaluates performance."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/15.png",
         "imageHint": "chart equalizer",
         "id": "vwap",
         "title": "Volume-Weighted Average Price (VWAP)",
@@ -337,7 +337,7 @@
         "implementation": "Our tools calculate VWAP dynamically. The Backtester tests VWAP-based strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/16.png",
         "imageHint": "chart scatter",
         "id": "parabolic-sar",
         "title": "Parabolic SAR",
@@ -353,7 +353,7 @@
         "implementation": "Our tools customize SAR settings. The Backtester simulates performance."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/17.png",
         "imageHint": "chart network",
         "id": "atr",
         "title": "Average True Range (ATR)",
@@ -369,7 +369,7 @@
         "implementation": "Our tools calculate ATR dynamically. The Backtester tests risk management strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/18.png",
         "imageHint": "chart maximize",
         "id": "keltner-channels",
         "title": "Keltner Channels",
@@ -384,7 +384,7 @@
         "implementation": "Our tools adjust channel settings. The Backtester tests breakout performance."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/19.png",
         "imageHint": "chart candlestick",
         "id": "heikin-ashi",
         "title": "Heikin Ashi Candlesticks",
@@ -399,7 +399,7 @@
         "implementation": "Our tools generate Heikin Ashi charts. The Backtester evaluates trend strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/20.png",
         "imageHint": "chart waves",
         "id": "elliott-wave",
         "title": "Elliott Wave Theory",
@@ -414,7 +414,7 @@
         "implementation": "Our tools assist in wave identification. The Backtester tests wave-based strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/21.png",
         "imageHint": "chart activity",
         "id": "cci",
         "title": "Commodity Channel Index (CCI)",
@@ -430,7 +430,7 @@
         "implementation": "Our tools customize CCI periods. The Backtester evaluates performance."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/22.png",
         "imageHint": "chart speed",
         "id": "price-rate-of-change",
         "title": "Price Rate of Change (ROC)",
@@ -445,7 +445,7 @@
         "implementation": "Our tools adjust ROC periods. The Backtester tests momentum strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/23.png",
         "imageHint": "chart network",
         "id": "standard-deviation",
         "title": "Standard Deviation",
@@ -460,7 +460,7 @@
         "implementation": "Our tools calculate SD dynamically. The Backtester tests volatility-based strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/24.png",
         "imageHint": "chart trend",
         "id": "aroon-oscillator",
         "title": "Aroon Oscillator",
@@ -476,7 +476,7 @@
         "implementation": "Our tools test Aroon settings. The Backtester evaluates trend and reversal strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/25.png",
         "imageHint": "chart bar",
         "id": "volume-oscillator",
         "title": "Volume Oscillator",
@@ -491,7 +491,7 @@
         "implementation": "Our tools adjust oscillator periods. The Backtester tests breakout confirmation strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/26.png",
         "imageHint": "chart activity",
         "id": "ease-of-movement",
         "title": "Ease of Movement (EOM)",
@@ -506,7 +506,7 @@
         "implementation": "Our tools calculate EOM dynamically. The Backtester tests divergence-based strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/27.png",
         "imageHint": "chart maximize",
         "id": "donchian-channels",
         "title": "Donchian Channels",
@@ -521,7 +521,7 @@
         "implementation": "Our tools adjust channel periods. The Backtester tests breakout performance."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/282.png",
         "imageHint": "chart map pin",
         "id": "pivot-points",
         "title": "Pivot Points",
@@ -537,7 +537,7 @@
         "implementation": "Our tools calculate pivot points dynamically. The Backtester tests bounce/breakout strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/29.png",
         "imageHint": "chart trend",
         "id": "coppock-curve",
         "title": "Coppock Curve",
@@ -552,7 +552,7 @@
         "implementation": "Our tools plot the Coppock Curve. The Backtester tests long-term reversal strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/30.png",
         "imageHint": "chart speed",
         "id": "know-sure-thing",
         "title": "Know Sure Thing (KST)",
@@ -567,7 +567,7 @@
         "implementation": "Our tools adjust KST parameters. The Backtester evaluates trend-following strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/31.png",
         "imageHint": "chart speed",
         "id": "ultimate-oscillator",
         "title": "Ultimate Oscillator",
@@ -582,7 +582,7 @@
         "implementation": "Our tools calculate the oscillator. The Backtester tests reversal strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/32.png",
         "imageHint": "chart trend",
         "id": "trix",
         "title": "TRIX",
@@ -597,7 +597,7 @@
         "implementation": "Our tools adjust TRIX periods. The Backtester tests trend-following strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/33.png",
         "imageHint": "chart network",
         "id": "mass-index",
         "title": "Mass Index",
@@ -612,7 +612,7 @@
         "implementation": "Our tools calculate the Mass Index. The Backtester tests reversal strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/34.png",
         "imageHint": "chart trend",
         "id": "mcginley-dynamic",
         "title": "McGinley Dynamic",
@@ -627,7 +627,7 @@
         "implementation": "Our tools plot the McGinley Dynamic. The Backtester tests trend strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/35.png",
         "imageHint": "chart speed",
         "id": "chande-momentum-oscillator",
         "title": "Chande Momentum Oscillator (CMO)",
@@ -642,7 +642,7 @@
         "implementation": "Our tools calculate CMO dynamically. The Backtester tests reversal strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/36.png",
         "imageHint": "chart trend",
         "id": "supertrend",
         "title": "Supertrend",
@@ -657,7 +657,7 @@
         "implementation": "Our tools adjust ATR settings. The Backtester optimizes Supertrend strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/37.png",
         "imageHint": "chart line",
         "id": "trendline",
         "title": "Trendline",
@@ -673,7 +673,7 @@
         "implementation": "Our tools assist in drawing trendlines. The Backtester tests bounce/break strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/38.png",
         "imageHint": "chart maximize",
         "id": "price-channels",
         "title": "Price Channels",
@@ -688,7 +688,7 @@
         "implementation": "Our tools adjust channel periods. The Backtester tests breakout performance."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/39.png",
         "imageHint": "chart trend",
         "id": "moving-average-ribbon",
         "title": "Moving Average Ribbon",
@@ -703,7 +703,7 @@
         "implementation": "Our tools plot MA Ribbons. The Backtester tests trend strength strategies."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/gann.png",
         "imageHint": "chart line",
         "id": "gann-angles",
         "title": "Gann Angles",
@@ -734,7 +734,7 @@
         "implementation": "Our tools identify key levels. The Backtester tests breakout strategies with volume confirmation."
     },
     {
-        "image": "https://placehold.co/300x200.png",
+        "image": "/assets/tutorials/sar.png",
         "imageHint": "chart line",
         "id": "support-resistance",
         "title": "Support and Resistance (SAR)",

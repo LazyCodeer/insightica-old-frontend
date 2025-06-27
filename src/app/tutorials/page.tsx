@@ -18,6 +18,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CheckCircle } from 'lucide-react';
 
+interface ImageData {
+  url: string;
+}
 interface KnowledgeBaseItem {
   id: string;
   image: string;
@@ -261,7 +264,7 @@ export default function TutorialsPage() {
                        <CardHeader className="p-0">
                          <div className="relative aspect-video">
                            <Image 
-                                src={item.image} 
+                                src={item.image}
                                 alt={item.title} 
                                 fill
                                 style={{ objectFit: 'cover' }}

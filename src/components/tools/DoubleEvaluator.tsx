@@ -82,6 +82,19 @@ export default function DoubleEvaluator() {
   const [analysisMetric, setAnalysisMetric] = useState<Metric>('sharpe_ratio');
   const [chordStock, setChordStock] = useState<StringSelectOption | null>(null);
 
+  const dateRange = useMemo(() => {
+    const baseDate = new Date('2025-05-23T00:00:00Z');
+    
+    const endDate = new Date(baseDate);
+    endDate.setUTCDate(baseDate.getUTCDate() - (historyIndex * duration));
+
+    const startDate = new Date(baseDate);
+    startDate.setUTCDate(baseDate.getUTCDate() - ((historyIndex + 1) * duration));
+
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' };
+
+    return `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
+  }, [historyIndex, duration]);
 
   const allSelectedConditions = useMemo(() => {
     if (!fixedCondition) return otherConditions;
@@ -340,51 +353,49 @@ export default function DoubleEvaluator() {
         <CardDescription>Analyze the historical performance of condition pairs across stocks and metrics.</CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border rounded-lg mb-4">
+            <div className="space-y-2">
+                <Label>Stocks (Max 9)</Label>
+                <Select isMulti options={stockOptions} value={selectedStocks} onChange={(o) => setSelectedStocks(o as readonly StringSelectOption[])} styles={reactSelectStyles}/>
+            </div>
+            <div className="space-y-2">
+                <Label>Fixed Condition</Label>
+                <ShadSelect value={String(fixedCondition?.value)} onValueChange={v => setFixedCondition(conditionOptions.find(c => c.value === parseInt(v)) || null)}>
+                    <SelectTrigger><SelectValue placeholder="Select a fixed condition" /></SelectTrigger>
+                    <SelectContent>{conditionOptions.map(opt => <SelectItem key={opt.value} value={String(opt.value)}>{opt.label}</SelectItem>)}</SelectContent>
+                </ShadSelect>
+            </div>
+            <div className="space-y-2">
+                <Label>Other Conditions (Max 9)</Label>
+                <Select isMulti options={otherConditionOptions} value={otherConditions} onChange={(o) => setOtherConditions(o as readonly NumberSelectOption[])} styles={reactSelectStyles}/>
+            </div>
+            <div className="space-y-2">
+                <Label>Duration (days)</Label>
+                <ShadSelect
+                    value={String(duration)}
+                    onValueChange={(value) => setDuration(parseInt(value, 10))}
+                >
+                    <SelectTrigger id="duration">
+                        <SelectValue placeholder="Select duration" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="30">30</SelectItem>
+                        <SelectItem value="45">45</SelectItem>
+                    </SelectContent>
+                </ShadSelect>
+            </div>
+        </div>
+
         <Tabs defaultValue="heatmap" className="w-full" onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 gap-1 h-auto p-1 mb-4">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 h-auto p-1 mb-4">
             <TabsTrigger value="heatmap">Heatmap</TabsTrigger>
             <TabsTrigger value="radar">Metrics Overview</TabsTrigger>
             <TabsTrigger value="analysis">Performance Analysis</TabsTrigger>
             <TabsTrigger value="chord">Pairwise Synergy</TabsTrigger>
           </TabsList>
           
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border rounded-lg">
-                <div className="space-y-2">
-                    <Label>Stocks (Max 9)</Label>
-                    <Select isMulti options={stockOptions} value={selectedStocks} onChange={(o) => setSelectedStocks(o as readonly StringSelectOption[])} styles={reactSelectStyles}/>
-                </div>
-                <div className="space-y-2">
-                    <Label>Fixed Condition</Label>
-                    <ShadSelect value={String(fixedCondition?.value)} onValueChange={v => setFixedCondition(conditionOptions.find(c => c.value === parseInt(v)) || null)}>
-                        <SelectTrigger><SelectValue placeholder="Select a fixed condition" /></SelectTrigger>
-                        <SelectContent>{conditionOptions.map(opt => <SelectItem key={opt.value} value={String(opt.value)}>{opt.label}</SelectItem>)}</SelectContent>
-                    </ShadSelect>
-                </div>
-                <div className="space-y-2">
-                    <Label>Other Conditions (Max 9)</Label>
-                    <Select isMulti options={otherConditionOptions} value={otherConditions} onChange={(o) => setOtherConditions(o as readonly NumberSelectOption[])} styles={reactSelectStyles}/>
-                </div>
-                <div className="space-y-2">
-                    <Label>Duration (days)</Label>
-                    <ShadSelect
-                        value={String(duration)}
-                        onValueChange={(value) => setDuration(parseInt(value, 10))}
-                    >
-                        <SelectTrigger id="duration">
-                            <SelectValue placeholder="Select duration" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="20">20</SelectItem>
-                            <SelectItem value="30">30</SelectItem>
-                            <SelectItem value="45">45</SelectItem>
-                        </SelectContent>
-                    </ShadSelect>
-                </div>
-            </div>
-
-            {/* Sub-tool specific controls */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border rounded-lg items-end">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border rounded-lg items-end mb-4">
                 {(activeTab === 'heatmap' || activeTab === 'chord') && (
                      <div className="space-y-2">
                         <Label>Metric</Label>
@@ -454,8 +465,11 @@ export default function DoubleEvaluator() {
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Run Analysis
             </Button>
-            <div className="space-y-2 mb-6 p-4 border rounded-lg">
-                <Label>History Point: {historyIndex}</Label>
+            <div className="space-y-2 p-4 border rounded-lg mb-6">
+                <div className="flex justify-between items-center">
+                    <Label>History Point: {historyIndex}</Label>
+                    <span className="text-sm text-muted-foreground font-mono">{dateRange}</span>
+                </div>
                 <Slider 
                     value={[historyIndex]} 
                     onValueChange={(v) => setHistoryIndex(v[0])} 
@@ -465,10 +479,9 @@ export default function DoubleEvaluator() {
                 />
             </div>
             {error && <p className="text-sm font-medium text-destructive text-center mb-4">{error}</p>}
-          </div>
 
           <TabsContent value="heatmap">
-            <Accordion type="single" collapsible className="w-full my-4 bg-card/50 px-4 rounded-lg border border-border/50">
+            <Accordion type="single" collapsible className="w-full mb-4 bg-card/50 px-4 rounded-lg border border-border/50">
               <AccordionItem value="item-1" className="border-b-0">
                 <AccordionTrigger className="hover:no-underline"><div className="flex items-center gap-2"><HelpCircle className="h-5 w-5 text-accent" /><span>How to use the Heatmap</span></div></AccordionTrigger>
                 <AccordionContent><div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1"><p>This tool helps you see at a glance the performance of multiple pairs of trading strategies across multiple stocks for a single chosen metric at a specific historical point.</p><ul><li><strong>Rows:</strong> Represent trading strategies paired with one selected strategy (Condition_1, chosen via single-select dropdown).</li><li><strong>Columns:</strong> Represent stocks (e.g., ABBOTINDIA).</li><li><strong>Cell Values:</strong> Show the performance of the i-th strategy pair (Condition_1 + Condition_2, where Condition_1 is a strategy chosen from the single-select dropdown, and Condition_2 is one of the strategies chosen from the multi-select dropdown) for the j-th stock, based on the chosen metric at the historical point set by the slider.</li></ul></div></AccordionContent>
@@ -515,7 +528,7 @@ export default function DoubleEvaluator() {
           </TabsContent>
 
           <TabsContent value="radar">
-            <Accordion type="single" collapsible className="w-full my-4 bg-card/50 px-4 rounded-lg border border-border/50">
+            <Accordion type="single" collapsible className="w-full mb-4 bg-card/50 px-4 rounded-lg border border-border/50">
                 <AccordionItem value="item-1" className="border-b-0">
                   <AccordionTrigger className="hover:no-underline"><div className="flex items-center gap-2"><HelpCircle className="h-5 w-5 text-accent" /><span>How to use the Radial Graph</span></div></AccordionTrigger>
                   <AccordionContent><div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1"><p>This tool helps you see at a glance the performance of multiple pairs of trading strategies for a given stock across multiple metrics at a specific historical point.</p><ul><li><strong>Spokes:</strong> Each spoke corresponds to a trading strategy paired with one selected strategy (Condition_1, chosen via single-select dropdown).</li><li><strong>Colored Lines:</strong> Each line represents a performance metric (e.g., Sharpe Ratio).</li><li><strong>Intersection Points:</strong> Indicate the performance of the i-th strategy pair (Condition_1 + Condition_2, where Condition_1 is a strategy chosen from the single-select dropdown, and Condition_2 is one of the strategies chosen from the multi-select dropdown) for the j-th metric for the selected stock at the historical point set by the slider.</li></ul></div></AccordionContent>
@@ -539,7 +552,7 @@ export default function DoubleEvaluator() {
           </TabsContent>
 
            <TabsContent value="analysis">
-              <Accordion type="single" collapsible className="w-full my-4 bg-card/50 px-4 rounded-lg border border-border/50">
+              <Accordion type="single" collapsible className="w-full mb-4 bg-card/50 px-4 rounded-lg border border-border/50">
                 <AccordionItem value="item-1" className="border-b-0">
                   <AccordionTrigger className="hover:no-underline"><div className="flex items-center gap-2"><HelpCircle className="h-5 w-5 text-accent" /><span>How to use the Bar Graphs</span></div></AccordionTrigger>
                   <AccordionContent>
@@ -580,7 +593,7 @@ export default function DoubleEvaluator() {
           </TabsContent>
           
           <TabsContent value="chord">
-             <Accordion type="single" collapsible className="w-full my-4 bg-card/50 px-4 rounded-lg border border-border/50">
+             <Accordion type="single" collapsible className="w-full mb-4 bg-card/50 px-4 rounded-lg border border-border/50">
                 <AccordionItem value="item-1" className="border-b-0">
                   <AccordionTrigger className="hover:no-underline"><div className="flex items-center gap-2"><HelpCircle className="h-5 w-5 text-accent" /><span>How to use the Chord Diagram</span></div></AccordionTrigger>
                   <AccordionContent><div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1"><p>This tool helps you see at a glance how pairs of trading strategies, selected from a pool of strategies, perform for a chosen stock based on a single metric at a specific historical point.</p><ul><li><strong>Arcs:</strong> Each arc on the diagram’s circumference represents a trading strategy from the selected pool (3–6 strategies, chosen via multi-select dropdown).</li><li><strong>Bands:</strong> Each band connecting two arcs shows the performance of the pair of strategies, with thickness indicating performance strength for the chosen metric at the historical point set by the slider.</li><li><strong>Purpose:</strong> Visualizes the relative performance of strategy pairs for the selected stock.</li></ul></div></AccordionContent>
@@ -603,3 +616,5 @@ export default function DoubleEvaluator() {
     </Card>
   );
 }
+
+    

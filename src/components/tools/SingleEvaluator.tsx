@@ -57,6 +57,20 @@ export default function SingleEvaluator() {
   // Data states
   const [analysisData, setAnalysisData] = useState<SingleAnalyzerAPIOutput>({});
   
+  const dateRange = useMemo(() => {
+    const baseDate = new Date('2025-05-23T00:00:00Z');
+    
+    const endDate = new Date(baseDate);
+    endDate.setUTCDate(baseDate.getUTCDate() - (historyIndex * duration));
+
+    const startDate = new Date(baseDate);
+    startDate.setUTCDate(baseDate.getUTCDate() - ((historyIndex + 1) * duration));
+
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' };
+
+    return `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
+  }, [historyIndex, duration]);
+
   useEffect(() => {
     if (!selectedStocks.find(s => s.value === radarStock?.value)) {
         setRadarStock(selectedStocks.length > 0 ? selectedStocks[0] : null);
@@ -260,44 +274,42 @@ export default function SingleEvaluator() {
         <CardDescription>Analyze the historical performance of individual trading conditions across various stocks and metrics.</CardDescription>
       </CardHeader>
       <CardContent>
-         <Tabs defaultValue="heatmap" className="w-full" onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 gap-1 h-auto p-1 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border rounded-lg mb-4">
+            <div className="space-y-2">
+                <Label>Stocks (Max 9)</Label>
+                <Select isMulti options={stockOptions} value={selectedStocks} onChange={(o) => setSelectedStocks(o as readonly StringSelectOption[])} styles={reactSelectStyles}/>
+            </div>
+            <div className="space-y-2">
+                <Label>Conditions (Max 9)</Label>
+                <Select isMulti options={conditionOptions} value={selectedConditions} onChange={(o) => setSelectedConditions(o as readonly NumberSelectOption[])} styles={reactSelectStyles}/>
+            </div>
+            <div className="space-y-2">
+                <Label>Duration (days)</Label>
+                <ShadSelect
+                    value={String(duration)}
+                    onValueChange={(value) => setDuration(parseInt(value, 10))}
+                >
+                    <SelectTrigger id="duration">
+                        <SelectValue placeholder="Select duration" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="30">30</SelectItem>
+                        <SelectItem value="45">45</SelectItem>
+                    </SelectContent>
+                </ShadSelect>
+            </div>
+        </div>
+
+        <Tabs defaultValue="heatmap" className="w-full" onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 h-auto p-1 mb-4">
             <TabsTrigger value="heatmap">Heatmap</TabsTrigger>
             <TabsTrigger value="radar">Metrics Overview</TabsTrigger>
             <TabsTrigger value="analysis">Performance Analysis</TabsTrigger>
             <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
           </TabsList>
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border rounded-lg">
-                <div className="space-y-2">
-                    <Label>Stocks (Max 9)</Label>
-                    <Select isMulti options={stockOptions} value={selectedStocks} onChange={(o) => setSelectedStocks(o as readonly StringSelectOption[])} styles={reactSelectStyles}/>
-                </div>
-                <div className="space-y-2">
-                    <Label>Conditions (Max 9)</Label>
-                    <Select isMulti options={conditionOptions} value={selectedConditions} onChange={(o) => setSelectedConditions(o as readonly NumberSelectOption[])} styles={reactSelectStyles}/>
-                </div>
-                <div className="space-y-2">
-                    <Label>Duration (days)</Label>
-                    <ShadSelect
-                        value={String(duration)}
-                        onValueChange={(value) => setDuration(parseInt(value, 10))}
-                    >
-                        <SelectTrigger id="duration">
-                            <SelectValue placeholder="Select duration" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="20">20</SelectItem>
-                            <SelectItem value="30">30</SelectItem>
-                            <SelectItem value="45">45</SelectItem>
-                        </SelectContent>
-                    </ShadSelect>
-                </div>
-            </div>
-
-            {/* Sub-tool specific controls */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg items-end">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg items-end mb-4">
                 {(activeTab === 'heatmap' || activeTab === 'leaderboard') && (
                     <div className="space-y-2">
                         <Label>Metric</Label>
@@ -356,12 +368,15 @@ export default function SingleEvaluator() {
                 )}
             </div>
 
-            <Button onClick={handleRunAnalysis} disabled={isLoading} className="w-full">
+            <Button onClick={handleRunAnalysis} disabled={isLoading} className="w-full mb-6">
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Run Analysis
             </Button>
-            <div className="space-y-2 p-4 border rounded-lg">
-                <Label>History Point: {historyIndex}</Label>
+            <div className="space-y-2 p-4 border rounded-lg mb-6">
+                <div className="flex justify-between items-center">
+                    <Label>History Point: {historyIndex}</Label>
+                    <span className="text-sm text-muted-foreground font-mono">{dateRange}</span>
+                </div>
                 <Slider 
                     value={[historyIndex]} 
                     onValueChange={(v) => setHistoryIndex(v[0])} 
@@ -371,10 +386,9 @@ export default function SingleEvaluator() {
                 />
             </div>
             {error && <p className="text-sm font-medium text-destructive text-center">{error}</p>}
-          </div>
         
           <TabsContent value="heatmap">
-            <Accordion type="single" collapsible className="w-full my-4 bg-card/50 px-4 rounded-lg border border-border/50">
+            <Accordion type="single" collapsible className="w-full mb-4 bg-card/50 px-4 rounded-lg border border-border/50">
               <AccordionItem value="item-1" className="border-b-0">
                 <AccordionTrigger className="hover:no-underline"><div className="flex items-center gap-2"><HelpCircle className="h-5 w-5 text-accent" /><span>How to use the Heatmap</span></div></AccordionTrigger>
                 <AccordionContent><div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1"><p>This tool helps you see at a glance the performance of multiple trading strategies across multiple stocks for a single chosen metric at a specific historical point.</p><ul><li><strong>Rows:</strong> Represent trading strategies (e.g., Support and Resistance).</li><li><strong>Columns:</strong> Represent stocks (e.g., ABBOTTINDIA).</li><li><strong>Cell Values:</strong> Show the performance of the i-th strategy for the j-th stock, based on the chosen metric at the historical point set by the slider.</li></ul></div></AccordionContent>
@@ -388,34 +402,36 @@ export default function SingleEvaluator() {
                     const heatmapData = getHeatmapGridData();
                     return heatmapData ? (
                       <div className="w-full overflow-x-auto p-1">
-                        <HeatMapGrid
-                          data={heatmapData.data}
-                          xLabels={heatmapData.xLabels}
-                          yLabels={heatmapData.yLabels}
-                          cellRender={(_x, _y, value) => <div title={`Value: ${value}`}>{value}</div>}
-                          xLabelsStyle={() => ({
-                            color: 'hsl(var(--muted-foreground))',
-                            fontSize: '.8rem',
-                          })}
-                          yLabelsStyle={() => ({
-                            color: 'hsl(var(--muted-foreground))',
-                            fontSize: '.8rem',
-                            textTransform: 'capitalize',
-                            width: '200px'
-                          })}
-                          cellStyle={(_x, _y, ratio) => {
-                            const hue = ratio * 120; // 0=red, 120=green
-                            return {
-                              background: `hsl(${hue}, 90%, 60%)`,
-                              fontSize: '12px',
-                              color: 'hsl(var(--foreground))',
-                              border: '1px solid hsl(var(--border))',
-                            }
-                          }}
-                          cellHeight="2rem"
-                          xLabelsPos="bottom"
-                          square={false}
-                        />
+                          <div className="min-w-[1200px]">
+                            <HeatMapGrid
+                            data={heatmapData.data}
+                            xLabels={heatmapData.xLabels}
+                            yLabels={heatmapData.yLabels}
+                            cellRender={(_x, _y, value) => <div title={`Value: ${value}`}>{value}</div>}
+                            xLabelsStyle={() => ({
+                                color: 'hsl(var(--muted-foreground))',
+                                fontSize: '.8rem',
+                            })}
+                            yLabelsStyle={() => ({
+                                color: 'hsl(var(--muted-foreground))',
+                                fontSize: '.8rem',
+                                textTransform: 'capitalize',
+                                width: '200px'
+                            })}
+                            cellStyle={(_x, _y, ratio) => {
+                                const hue = ratio * 120; // 0=red, 120=green
+                                return {
+                                background: `hsl(${hue}, 90%, 60%)`,
+                                fontSize: '12px',
+                                color: 'hsl(var(--foreground))',
+                                border: '1px solid hsl(var(--border))',
+                                }
+                            }}
+                            cellHeight="2rem"
+                            xLabelsPos="bottom"
+                            square={false}
+                            />
+                        </div>
                       </div>
                     ) : (
                       <div className="text-center h-80 flex items-center justify-center text-muted-foreground">No data to display. Run an analysis.</div>
@@ -427,7 +443,7 @@ export default function SingleEvaluator() {
           </TabsContent>
 
           <TabsContent value="radar">
-             <Accordion type="single" collapsible className="w-full my-4 bg-card/50 px-4 rounded-lg border border-border/50">
+             <Accordion type="single" collapsible className="w-full mb-4 bg-card/50 px-4 rounded-lg border border-border/50">
               <AccordionItem value="item-1" className="border-b-0">
                 <AccordionTrigger className="hover:no-underline"><div className="flex items-center gap-2"><HelpCircle className="h-5 w-5 text-accent" /><span>How to use the Radial Graph</span></div></AccordionTrigger>
                 <AccordionContent><div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1"><p>This tool helps you see at a glance the performance of multiple trading strategies for a given stock across multiple metrics at a specific historical point.</p><ul><li><strong>Spokes:</strong> Each spoke corresponds to a trading strategy (e.g., Bollinger Bands).</li><li><strong>Colored Lines:</strong> Each line represents a performance metric (e.g., Sharpe Ratio).</li><li><strong>Intersection Points:</strong> Indicate the performance of the i-th strategy for the j-th metric for the selected stock at the historical point set by the slider.</li></ul></div></AccordionContent>
@@ -450,7 +466,7 @@ export default function SingleEvaluator() {
           </TabsContent>
 
           <TabsContent value="analysis">
-             <Accordion type="single" collapsible className="w-full my-4 bg-card/50 px-4 rounded-lg border border-border/50">
+             <Accordion type="single" collapsible className="w-full mb-4 bg-card/50 px-4 rounded-lg border border-border/50">
                 <AccordionItem value="item-1" className="border-b-0">
                   <AccordionTrigger className="hover:no-underline"><div className="flex items-center gap-2"><HelpCircle className="h-5 w-5 text-accent" /><span>How to use the Bar Graphs</span></div></AccordionTrigger>
                   <AccordionContent>
@@ -513,3 +529,5 @@ export default function SingleEvaluator() {
     </Card>
   );
 }
+
+    
