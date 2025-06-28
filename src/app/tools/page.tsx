@@ -49,6 +49,15 @@ interface GraphData {
   value: number;
 }
 
+const predictorMetricOptions = [
+    { value: 0, label: 'Total Return' },
+    { value: 1, label: 'Sharpe Ratio' },
+    { value: 2, label: 'Max Drawdown' },
+    { value: 3, label: 'Profitable Trades' },
+    { value: 4, label: 'Winning Percentage' },
+    { value: 5, label: 'Total Return * Sharpe Ratio' }
+];
+
 export default function ToolsPage() {
   const { currentUser, loading } = useAuth();
   const router = useRouter();
@@ -56,6 +65,7 @@ export default function ToolsPage() {
   const [stock, setStock] = useState<string>('ACC.NS');
   const [conditions, setConditions] = useState<readonly ConditionOption[]>([]);
   const [duration, setDuration] = useState<number>(45);
+  const [predictorMetric, setPredictorMetric] = useState<number>(0);
   
   const [graphData, setGraphData] = useState<GraphData[]>([]);
   const [predictorGraphDomain, setPredictorGraphDomain] = useState<[number, number] | undefined>(undefined);
@@ -97,7 +107,7 @@ export default function ToolsPage() {
         condition_indices: conditions.map((c) => c.value),
         ticker_size: '1d',
         duration: duration,
-        what_to_optimise: 0,
+        what_to_optimise: predictorMetric,
       };
       const response = await runSinglePredictor(apiInput);
       const transformedData = Object.entries(response.result).map(([conditionIndex, value]) => ({
@@ -222,7 +232,7 @@ export default function ToolsPage() {
                     <div className="lg:col-span-1">
                       <Label htmlFor="stock-select">Stock</Label>
                       <ShadSelect value={stock} onValueChange={setStock}>
-                        <SelectTrigger id="stock-select">
+                        <SelectTrigger id="stock-select" className="mt-1">
                           <SelectValue placeholder="Select a stock" />
                         </SelectTrigger>
                         <SelectContent>
@@ -232,7 +242,42 @@ export default function ToolsPage() {
                         </SelectContent>
                       </ShadSelect>
                     </div>
+                    
+                    <div className="lg:col-span-1">
+                      <Label htmlFor="duration">Duration (days)</Label>
+                      <ShadSelect
+                        value={String(duration)}
+                        onValueChange={(value) => setDuration(parseInt(value, 10))}
+                      >
+                        <SelectTrigger id="duration" className="mt-1">
+                          <SelectValue placeholder="Select duration" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="20">20</SelectItem>
+                          <SelectItem value="30">30</SelectItem>
+                          <SelectItem value="45">45</SelectItem>
+                        </SelectContent>
+                      </ShadSelect>
+                    </div>
+
                     <div className="lg:col-span-2">
+                        <Label htmlFor="predictor-metric">Metric to Optimize</Label>
+                        <ShadSelect
+                            value={String(predictorMetric)}
+                            onValueChange={(value) => setPredictorMetric(parseInt(value, 10))}
+                        >
+                            <SelectTrigger id="predictor-metric" className="mt-1">
+                            <SelectValue placeholder="Select metric" />
+                            </SelectTrigger>
+                            <SelectContent>
+                            {predictorMetricOptions.map(option => (
+                                <SelectItem key={option.value} value={String(option.value)}>{option.label}</SelectItem>
+                            ))}
+                            </SelectContent>
+                        </ShadSelect>
+                    </div>
+
+                    <div className="lg:col-span-4">
                       <Label htmlFor="conditions-select">Trading Strategies (Max 10)</Label>
                       <Select
                         id="conditions-select"
@@ -251,22 +296,7 @@ export default function ToolsPage() {
                         }}
                       />
                     </div>
-                    <div className="lg:col-span-1">
-                      <Label htmlFor="duration">Duration (days)</Label>
-                      <ShadSelect
-                        value={String(duration)}
-                        onValueChange={(value) => setDuration(parseInt(value, 10))}
-                      >
-                        <SelectTrigger id="duration" className="mt-1">
-                          <SelectValue placeholder="Select duration" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="20">20</SelectItem>
-                          <SelectItem value="30">30</SelectItem>
-                          <SelectItem value="45">45</SelectItem>
-                        </SelectContent>
-                      </ShadSelect>
-                    </div>
+                    
                     <div className="lg:col-span-4 mt-4">
                        {error && <p className="text-sm font-medium text-destructive mb-2">{error}</p>}
                       <Button type="submit" className="w-full" disabled={isLoading}>

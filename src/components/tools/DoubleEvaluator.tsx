@@ -188,19 +188,17 @@ export default function DoubleEvaluator() {
   const hasData = Object.keys(analysisData).length > 0;
 
   const getHeatmapGridData = () => {
-    if (!hasData) return null;
+    if (!hasData || !fixedCondition || otherConditions.length === 0) return null;
 
     const historyKey = `history_${historyIndex}`;
     const currentHistoryData = analysisData[historyKey];
     if (!currentHistoryData) return null;
 
-    const conditionIds = allSelectedConditions.map(c => c.value);
-    const pairs = [];
-    for (let i = 0; i < conditionIds.length; i++) {
-        for (let j = i + 1; j < conditionIds.length; j++) {
-            pairs.push({ key: getPairKey(conditionIds[i], conditionIds[j]), label: `${conditionMapIdName[`c${conditionIds[i]}`]} & ${conditionMapIdName[`c${conditionIds[j]}`]}` });
-        }
-    }
+    const fixedCondId = fixedCondition.value;
+    const pairs = otherConditions.map(otherCond => ({
+        key: getPairKey(fixedCondId, otherCond.value),
+        label: `${conditionMapIdName[`c${fixedCondId}`]} & ${conditionMapIdName[`c${otherCond.value}`]}`
+    }));
 
     const xLabels = selectedStocks.map(s => s.label.replace('.NS', ''));
     const yLabels = pairs.map(p => p.label);
@@ -221,27 +219,25 @@ export default function DoubleEvaluator() {
     const historyKey = `history_${historyIndex}`;
     const currentHistoryData = analysisData[historyKey];
     
-    if (!currentHistoryData || !selectedStocks.length || !allSelectedConditions.length) return [];
+    if (!currentHistoryData || !selectedStocks.length || !fixedCondition || otherConditions.length === 0) return [];
     
     // Using the first selected stock for the radar view
     const stock = selectedStocks[0];
     const rawData: any[] = [];
-    const conditionIds = allSelectedConditions.map(c => c.value);
+    const fixedCondId = fixedCondition.value;
 
-    for (let i = 0; i < conditionIds.length; i++) {
-        for (let j = i + 1; j < conditionIds.length; j++) {
-            const pairKey = getPairKey(conditionIds[i], conditionIds[j]);
-            const stockMetrics = currentHistoryData[pairKey]?.[stock.value];
-            if (stockMetrics) {
-                const cond1Label = conditionOptions.find(c => c.value === conditionIds[i])?.label || `C${conditionIds[i]}`;
-                const cond2Label = conditionOptions.find(c => c.value === conditionIds[j])?.label || `C${conditionIds[j]}`;
-                rawData.push({
-                    condition: `${cond1Label.substring(0,10)} & ${cond2Label.substring(0,10)}`,
-                    ...stockMetrics
-                });
-            }
+    otherConditions.forEach(otherCond => {
+        const pairKey = getPairKey(fixedCondId, otherCond.value);
+        const stockMetrics = currentHistoryData[pairKey]?.[stock.value];
+        if (stockMetrics) {
+            const cond1Label = conditionOptions.find(c => c.value === fixedCondId)?.label || `C${fixedCondId}`;
+            const cond2Label = conditionOptions.find(c => c.value === otherCond.value)?.label || `C${otherCond.value}`;
+            rawData.push({
+                condition: `${cond1Label.substring(0,10)} & ${cond2Label.substring(0,10)}`,
+                ...stockMetrics
+            });
         }
-    }
+    });
 
     // Normalize the data
     const normalizedData = rawData.slice(0, 8).map(item => { // Limit to 8 pairs for readability
@@ -473,7 +469,7 @@ export default function DoubleEvaluator() {
                 <Slider 
                     value={[historyIndex]} 
                     onValueChange={(v) => setHistoryIndex(v[0])} 
-                    max={99} 
+                    max={44} 
                     step={1} 
                     disabled={!hasData || isLoading}
                 />
