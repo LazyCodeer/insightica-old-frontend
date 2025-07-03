@@ -149,7 +149,7 @@ export default function ToolsPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow pt-8">
         <PageSection>
           <div className="text-center mb-12 md:mb-16">
             <Settings2 className="mx-auto h-16 w-16 text-accent mb-6" />

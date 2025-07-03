@@ -178,7 +178,7 @@ export default function WorkWithUsPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow pt-8">
         <PageSection>
           <div className="max-w-4xl mx-auto text-center">
              <FileText className="mx-auto h-12 w-12 text-accent mb-4" />

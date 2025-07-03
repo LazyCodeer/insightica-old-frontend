@@ -1,5 +1,4 @@
-
-'use client';
+"use client";
 
 import {
   BarChart,
@@ -11,7 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
   Label,
-} from 'recharts';
+} from "recharts";
 
 interface BarGraphProps<T> {
   data: T[];
@@ -21,6 +20,7 @@ interface BarGraphProps<T> {
   xAxisLabel?: string;
   yAxisLabel?: string;
   title?: string;
+  legend?: boolean;
   yAxisDomain?: [number | string, number | string];
 }
 
@@ -29,12 +29,20 @@ const CustomAxisTick = ({ x, y, payload }: any) => {
     return null;
   }
   // Split label into words to wrap them
-  const words = payload.value.split(' ');
+  const words = payload.value.split(" ");
   return (
     <g transform={`translate(${x},${y})`}>
       {words.map((word, i) => (
         // Render each word as a new tspan element to create a new line
-        <text key={i} x={0} y={0} dy={16 + i * 12} textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize={10}>
+        <text
+          key={i}
+          x={0}
+          y={0}
+          dy={16 + i * 12}
+          textAnchor="middle"
+          fill="hsl(var(--muted-foreground))"
+          fontSize={10}
+        >
           {word}
         </text>
       ))}
@@ -42,20 +50,22 @@ const CustomAxisTick = ({ x, y, payload }: any) => {
   );
 };
 
-
 export function BarGraph<T extends Record<string, any>>({
   data,
   xAxisKey,
   yAxisKey,
-  barColor = 'hsl(var(--primary))',
+  barColor = "hsl(var(--primary))",
   xAxisLabel,
   yAxisLabel,
   title,
   yAxisDomain,
+  legend = true,
 }: BarGraphProps<T>) {
   return (
     <div className="w-full h-[500px]">
-      {title && <h3 className="text-lg font-semibold text-center mb-4">{title}</h3>}
+      {title && (
+        <h3 className="text-lg font-semibold text-center mb-4">{title}</h3>
+      )}
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
@@ -67,8 +77,8 @@ export function BarGraph<T extends Record<string, any>>({
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-            dataKey={xAxisKey as string} 
+          <XAxis
+            dataKey={xAxisKey as string}
             interval={0}
             tick={<CustomAxisTick />}
           >
@@ -78,20 +88,24 @@ export function BarGraph<T extends Record<string, any>>({
           </XAxis>
           <YAxis
             domain={yAxisDomain}
-            tickFormatter={(value) => (typeof value === 'number' ? value.toFixed(2) : value)}
+            tickFormatter={(value) =>
+              typeof value === "number" ? value.toFixed(2) : value
+            }
           >
             {yAxisLabel && (
               <Label value={yAxisLabel} angle={-90} position="insideLeft" />
             )}
           </YAxis>
           <Tooltip
-            formatter={(value: unknown) => (typeof value === 'number' ? value.toFixed(4) : value)}
+            formatter={(value: unknown) =>
+              typeof value === "number" ? value.toFixed(4) : value
+            }
             contentStyle={{
-              background: 'hsl(var(--background))',
-              borderColor: 'hsl(var(--border))',
+              background: "hsl(var(--background))",
+              borderColor: "hsl(var(--border))",
             }}
           />
-          <Legend wrapperStyle={{ bottom: 10, left: 20 }} />
+          {legend && <Legend wrapperStyle={{ bottom: 10, left: 20 }} />}
           <Bar dataKey={yAxisKey as string} fill={barColor} />
         </BarChart>
       </ResponsiveContainer>

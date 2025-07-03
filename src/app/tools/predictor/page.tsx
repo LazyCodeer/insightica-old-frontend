@@ -9,7 +9,7 @@ export default function PredictorToolPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow pt-8">
         <PageSection>
           <div className="text-center">
             <Lightbulb className="mx-auto h-16 w-16 text-accent mb-6" />

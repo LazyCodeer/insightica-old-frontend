@@ -90,7 +90,7 @@ export default function EarlyAccessPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow pt-8">
         <PageSection>
           <div className="max-w-2xl mx-auto text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-foreground">

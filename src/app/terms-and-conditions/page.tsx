@@ -10,7 +10,7 @@ export default function TermsAndConditionsPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow pt-8">
         <PageSection>
           <div className="text-center mb-10">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-foreground">
