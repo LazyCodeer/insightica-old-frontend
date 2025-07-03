@@ -15,6 +15,7 @@ const baseNavLinks = [
   { href: '/about', label: 'About Us' },
   { href: '/tools', label: 'Tools' },
   { href: '/tutorials', label: 'Tutorials' },
+  { href: '/testing-results', label: 'Testing Results' },
 ];
 
 const NavLinkItem = ({ href, label, isActive, onClick, className, ...props }: { href: string, label: string, isActive: boolean, onClick?: () => void, className?: string, [key: string]: any }) => (
