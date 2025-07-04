@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Eye, EyeOff, UserPlus, MailCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const SignupFormSchema = z.object({
   name: z.string().min(1, "Name is required."),
@@ -40,6 +41,8 @@ export default function SignupForm() {
   const { signup, loading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [signupSuccess, setSignupSuccess] = useState(false);
+
+  const router = useRouter();
   
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(SignupFormSchema),
@@ -51,7 +54,9 @@ export default function SignupForm() {
     setError(null);
     try {
       await signup(data);
-      setSignupSuccess(true);
+      // redirect to login
+      router.push('/auth/login');
+      // setSignupSuccess(true);
     } catch (err: any) {
       setError(err.message || "Failed to sign up. Please try again.");
       console.error("Signup failed:", err);
