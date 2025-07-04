@@ -30,7 +30,7 @@ const KeyBenefitsSection = () => {
     <PageSection className="bg-background/50">
       <div className="text-center mb-12 md:mb-16" data-aos="fade-up">
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl text-foreground">
-          Why Traders Choose <span className="text-accent">Insightica</span>
+          Why <span className="text-accent">Insightica</span>
         </h2>
         <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
           Discover the core features that give you a trading edge.

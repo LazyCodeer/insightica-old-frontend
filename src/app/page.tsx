@@ -1,13 +1,14 @@
-
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import HeroSection from '@/components/marketing/sections/HeroSection';
-import ValuePropositionSection from '@/components/marketing/sections/ValuePropositionSection';
-import KeyBenefitsSection from '@/components/marketing/sections/KeyBenefitsSection';
-import ToolsShowcaseSection from '@/components/marketing/sections/ToolsShowcaseSection';
-import FaqSection from '@/components/marketing/sections/FaqSection';
-import TestimonialSection from '@/components/marketing/sections/TestimonialSection';
-import FooterCtaSection from '@/components/marketing/sections/FooterCtaSection';
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import HeroSection from "@/components/marketing/sections/HeroSection";
+import ValuePropositionSection from "@/components/marketing/sections/ValuePropositionSection";
+import KeyBenefitsSection from "@/components/marketing/sections/KeyBenefitsSection";
+import ToolsShowcaseSection from "@/components/marketing/sections/ToolsShowcaseSection";
+import FaqSection from "@/components/marketing/sections/FaqSection";
+import TestimonialSection from "@/components/marketing/sections/TestimonialSection";
+import FooterCtaSection from "@/components/marketing/sections/FooterCtaSection";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -19,7 +20,7 @@ export default function HomePage() {
         <KeyBenefitsSection />
         <ToolsShowcaseSection />
         <FaqSection />
-        <TestimonialSection />
+        {/* <TestimonialSection /> */}
         <FooterCtaSection />
       </main>
       <Footer />

@@ -22,30 +22,28 @@ interface BarGraphProps<T> {
   title?: string;
   legend?: boolean;
   yAxisDomain?: [number | string, number | string];
+  height?: number;
 }
 
 const CustomAxisTick = ({ x, y, payload }: any) => {
   if (!payload || !payload.value) {
     return null;
   }
-  // Split label into words to wrap them
-  const words = payload.value.split(" ");
+
   return (
     <g transform={`translate(${x},${y})`}>
-      {words.map((word, i) => (
-        // Render each word as a new tspan element to create a new line
-        <text
-          key={i}
-          x={0}
-          y={0}
-          dy={16 + i * 12}
-          textAnchor="middle"
-          fill="hsl(var(--muted-foreground))"
-          fontSize={10}
-        >
-          {word}
-        </text>
-      ))}
+      <text
+        x={0}
+        y={0}
+        dy={3}
+        dx={10}
+        textAnchor="start"
+        fill="hsl(var(--muted-foreground))"
+        fontSize={10}
+        transform="rotate(45)"
+      >
+        {payload.value}
+      </text>
     </g>
   );
 };
@@ -60,9 +58,10 @@ export function BarGraph<T extends Record<string, any>>({
   title,
   yAxisDomain,
   legend = true,
+  height = 500,
 }: BarGraphProps<T>) {
   return (
-    <div className="w-full h-[500px]">
+    <div className={`w-full`} style={{ height: `${height}px` }}>
       {title && (
         <h3 className="text-lg font-semibold text-center mb-4">{title}</h3>
       )}
@@ -73,7 +72,7 @@ export function BarGraph<T extends Record<string, any>>({
             top: 5,
             right: 30,
             left: 20,
-            bottom: 80, // Increased bottom margin to accommodate wrapped labels
+            bottom: 120, // Increased bottom margin for rotated labels
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
@@ -97,9 +96,11 @@ export function BarGraph<T extends Record<string, any>>({
             )}
           </YAxis>
           <Tooltip
-            formatter={(value: unknown) =>
-              typeof value === "number" ? value.toFixed(4) : value
-            }
+            formatter={(value: any, name: any, props: any) => {
+              const formattedValue =
+                typeof value === "number" ? value.toFixed(4) : value;
+              return [formattedValue, props.payload?.fullName || name];
+            }}
             contentStyle={{
               background: "hsl(var(--background))",
               borderColor: "hsl(var(--border))",

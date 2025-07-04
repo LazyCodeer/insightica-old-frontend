@@ -48,16 +48,68 @@ export default function TestingResultsPage() {
     return Object.keys(firstItem).filter((key) => key !== "main");
   };
 
-  // Transform data for chart display with pagination
-  const transformMainData = (data: any[], page: number = 0) => {
+  // Transform data for chart display - show all conditions
+  const transformMainData = (data: any[]) => {
     if (data.length === 0 || !data[0].main) return [];
-    const start = page * DATA_POINTS_PER_PAGE;
-    const end = start + DATA_POINTS_PER_PAGE;
-    return data[0].main
-      .slice(start, end)
-      .map((value: number, index: number) => ({
+
+    // Get all condition names (excluding 'main')
+    const conditionNames = Object.keys(data[0]).filter((key) => key !== "main");
+
+    // Function to create shorter labels
+    const shortenLabel = (label: string) => {
+      // Remove text in parentheses
+      let shortened = label.replace(/\s*\([^)]*\)/g, "");
+
+      // Common abbreviations for technical indicators
+      const abbreviations: { [key: string]: string } = {
+        "Simple Moving Average": "SMA",
+        "Exponential Moving Average": "EMA",
+        "Relative Strength Index": "RSI",
+        "Moving Average Convergence Divergence": "MACD",
+        "Stochastic Oscillator": "Stoch",
+        "Average Directional Index": "ADX",
+        "Commodity Channel Index": "CCI",
+        "Average True Range": "ATR",
+        "Stop and Reverse": "SAR",
+        "On-Balance Volume": "OBV",
+        "Rate of Change": "ROC",
+        "Money Flow Index": "MFI",
+        "Volume Weighted Average Price": "VWAP",
+        "Bollinger Bands": "BB",
+        "Fibonacci Retracement Level": "Fib Retracement",
+        "Price Action Breakout": "PA Breakout",
+        "New 10-Week High": "10W High",
+        "10-Week High-Low Range": "10W Range",
+        "Chaikin Money Flow": "CMF",
+        "Ease of Movement": "EOM",
+        "Volume Oscillator": "Vol Osc",
+        "Aroon Oscillator": "Aroon Osc",
+        "Awesome Oscillator": "AO",
+        "Chaikin Oscillator": "Chaikin Osc",
+      };
+
+      // Apply abbreviations
+      for (const [full, abbr] of Object.entries(abbreviations)) {
+        shortened = shortened.replace(new RegExp(full, "gi"), abbr);
+      }
+
+      // Limit length and clean up
+      if (shortened.length > 15) {
+        shortened = shortened.substring(0, 15) + "...";
+      }
+
+      return shortened.trim();
+    };
+
+    return data[0].main.map((value: number, index: number) => {
+      const originalName = conditionNames[index] || `Data Point ${index + 1}`;
+      const shortName = shortenLabel(originalName);
+      return {
+        name: shortName,
         value: value,
-      }));
+        fullName: originalName, // Keep original for tooltip
+      };
+    });
   };
 
   const transformSubData = (
@@ -84,8 +136,8 @@ export default function TestingResultsPage() {
   const tab1Conditions = getAvailableConditions(tab1Data);
   const tab2Conditions = getAvailableConditions(tab2Data);
 
-  const tab1MainData = transformMainData(tab1Data, tab1Page);
-  const tab2MainData = transformMainData(tab2Data, tab2Page);
+  const tab1MainData = transformMainData(tab1Data);
+  const tab2MainData = transformMainData(tab2Data);
 
   const tab1SubData = tab1SubCondition
     ? transformSubData(tab1Data, tab1SubCondition, tab1Page)
@@ -291,7 +343,7 @@ export default function TestingResultsPage() {
                     <CardTitle>Tab 1 - Main Performance Chart</CardTitle>
                     <CardDescription>
                       Overall performance data from the main dataset (showing
-                      first 50 data points for clarity)
+                      all conditions)
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -300,7 +352,7 @@ export default function TestingResultsPage() {
                       xAxisKey="name"
                       yAxisKey="value"
                       barColor="hsl(var(--primary))"
-                      xAxisLabel="Data Points"
+                      xAxisLabel=""
                       yAxisLabel="Values"
                       title="Main Chart"
                       legend={false}
@@ -345,7 +397,7 @@ export default function TestingResultsPage() {
                           xAxisKey="name"
                           yAxisKey="value"
                           barColor="hsl(var(--accent))"
-                          xAxisLabel="Data Points"
+                          xAxisLabel={tab1SubCondition}
                           yAxisLabel=""
                           title={`Sub Chart - ${tab1SubCondition}`}
                           legend={false}
@@ -389,7 +441,7 @@ export default function TestingResultsPage() {
                     <CardTitle>Tab 2 - Main Performance Chart</CardTitle>
                     <CardDescription>
                       Overall performance data from the main dataset (showing
-                      first 50 data points for clarity)
+                      all conditions)
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -398,7 +450,7 @@ export default function TestingResultsPage() {
                       xAxisKey="name"
                       yAxisKey="value"
                       barColor="hsl(var(--primary))"
-                      xAxisLabel="Data Points"
+                      xAxisLabel=""
                       yAxisLabel=""
                       title="Main Chart"
                       legend={false}
@@ -443,7 +495,7 @@ export default function TestingResultsPage() {
                           xAxisKey="name"
                           yAxisKey="value"
                           barColor="hsl(var(--accent))"
-                          xAxisLabel="Data Points"
+                          xAxisLabel={tab2SubCondition}
                           yAxisLabel=""
                           title={`Sub Chart - ${tab2SubCondition}`}
                           legend={false}
@@ -488,6 +540,36 @@ export default function TestingResultsPage() {
                 &larr; Back to Home
               </Link>
             </Button>
+          </div>
+
+          {/* Community Section */}
+          <div
+            className="mt-12 py-10 px-6 rounded-xl bg-blue-50 dark:bg-blue-950/40"
+            data-aos="fade-up"
+          >
+            <div className="text-center max-w-3xl mx-auto">
+              <h2 className="text-2xl font-bold text-foreground mb-4">
+                Get the latest updates — in our Discord community.
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                We're working on new features to enhance your experience.
+                <br />
+                Stay updated by following us here:
+              </p>
+              <Button
+                asChild
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+              >
+                <Link
+                  href="https://discord.com/invite/PTCWzMd5YD"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  👉 Join the Community on Discord
+                </Link>
+              </Button>
+            </div>
           </div>
         </PageSection>
       </main>
