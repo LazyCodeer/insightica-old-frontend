@@ -150,10 +150,10 @@ export default function EarlyAccessPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Beginner">Beginner</SelectItem>
-                            <SelectItem value="Intermediate">Intermediate</SelectItem>
-                            <SelectItem value="Experienced">Experienced</SelectItem>
-                            <SelectItem value="Professional">Professional</SelectItem>
+                            <SelectItem value="beginner">Beginner</SelectItem>
+                            <SelectItem value="intermediate">Intermediate</SelectItem>
+                            <SelectItem value="experienced">Experienced</SelectItem>
+                            <SelectItem value="professional">Professional</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -173,11 +173,11 @@ export default function EarlyAccessPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Social Media">Social Media</SelectItem>
-                            <SelectItem value="Referral from Friend/Colleague">Referral from Friend/Colleague</SelectItem>
-                            <SelectItem value="Online Community/Forum">Online Community/Forum</SelectItem>
-                            <SelectItem value="Web Search">Web Search</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
+                            <SelectItem value="social Media">Social Media</SelectItem>
+                            <SelectItem value="referral from Friend/Colleague">Referral from Friend/Colleague</SelectItem>
+                            <SelectItem value="online Community/Forum">Online Community/Forum</SelectItem>
+                            <SelectItem value="web Search">Web Search</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
