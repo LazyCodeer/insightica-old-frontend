@@ -22,15 +22,15 @@ import { Loader2 } from "lucide-react";
 const EarlyAccessFormSchema = z.object({
   full_name: z.string().min(1, "Full name is required."),
   email_address: z.string().email("Invalid email address.").min(1, "Email address is required."),
-  trading_experience: z.enum(["Beginner", "Intermediate", "Experienced", "Professional"], {
+  trading_experience: z.enum(["beginner", "intermediate", "experienced", "professional"], {
     required_error: "Trading experience level is required.",
   }),
-  referral_source: z.enum(["Social Media", "Referral from Friend/Colleague", "Online Community/Forum", "Web Search", "Other", ""]).optional(),
+  referral_source: z.enum(["social_media", "referral_friend_colleague", "online_community_forum", "web_search", "news_blog", "university_network", "other", ""]).optional(),
   referral_other_specify: z.string().optional(),
   biggest_challenge: z.string().optional(),
   additional_comments: z.string().optional(),
 }).refine(data => {
-  if (data.referral_source === "Other") {
+  if (data.referral_source === "other") {
     return !!data.referral_other_specify && data.referral_other_specify.length > 0;
   }
   return true;
@@ -173,10 +173,12 @@ export default function EarlyAccessPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="social Media">Social Media</SelectItem>
-                            <SelectItem value="referral from Friend/Colleague">Referral from Friend/Colleague</SelectItem>
-                            <SelectItem value="online Community/Forum">Online Community/Forum</SelectItem>
-                            <SelectItem value="web Search">Web Search</SelectItem>
+                            <SelectItem value="social_media">Social Media</SelectItem>
+                            <SelectItem value="referral_friend_colleague">Referral from Friend/Colleague</SelectItem>
+                            <SelectItem value="online_community_forum">Online Community/Forum</SelectItem>
+                            <SelectItem value="web_earch">Web Search</SelectItem>
+                            <SelectItem value="news_blog">News/Blog</SelectItem>
+                            <SelectItem value="university_network">University Network</SelectItem>
                             <SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
@@ -184,7 +186,7 @@ export default function EarlyAccessPage() {
                       </FormItem>
                     )}
                   />
-                  {watchReferralSource === "Other" && (
+                  {watchReferralSource === "other" && (
                     <FormField
                       control={form.control}
                       name="referral_other_specify"
