@@ -332,18 +332,17 @@ export default function TestingResultsPage() {
             </h2>
             <Tabs defaultValue="tab1" className="w-full">
               <TabsList className="grid w-full grid-cols-1 md:grid-cols-2">
-                <TabsTrigger value="tab1">Tab 1 Results</TabsTrigger>
-                <TabsTrigger value="tab2">Tab 2 Results</TabsTrigger>
+                <TabsTrigger value="tab1">All Indicators vs All Results</TabsTrigger>
+                <TabsTrigger value="tab2">All Indicators vs Favorites Results</TabsTrigger>
               </TabsList>
 
               <TabsContent value="tab1" className="space-y-8">
                 {/* Main Chart Section */}
                 <Card className="mt-4">
                   <CardHeader>
-                    <CardTitle>Tab 1 - Main Performance Chart</CardTitle>
+                    <CardTitle>Main Performance Chart</CardTitle>
                     <CardDescription>
-                      Overall performance data from the main dataset (showing
-                      all conditions)
+                      Performance of our predictor when selecting from all indicators, compared against all others. Returns are annualized for comparability.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -363,10 +362,9 @@ export default function TestingResultsPage() {
                 {/* Sub Chart Section */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Tab 1 - Conditional Performance Chart</CardTitle>
+                    <CardTitle>Conditional Performance Chart</CardTitle>
                     <CardDescription>
-                      Performance data based on selected condition (showing
-                      first 50 data points for clarity)
+                      Performance of our predictor when selecting from all indicators, compared against all others. Returns are annualized for comparability.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -438,10 +436,9 @@ export default function TestingResultsPage() {
                 {/* Main Chart Section */}
                 <Card className="mt-4">
                   <CardHeader>
-                    <CardTitle>Tab 2 - Main Performance Chart</CardTitle>
+                    <CardTitle>Main Performance Chart</CardTitle>
                     <CardDescription>
-                      Overall performance data from the main dataset (showing
-                      all conditions)
+                      Predictor selects from all indicators but is benchmarked against popular market indicators.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -461,10 +458,9 @@ export default function TestingResultsPage() {
                 {/* Sub Chart Section */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Tab 2 - Conditional Performance Chart</CardTitle>
+                    <CardTitle>Conditional Performance Chart</CardTitle>
                     <CardDescription>
-                      Performance data based on selected condition (showing
-                      first 50 data points for clarity)
+                      Predictor selects from all indicators but is benchmarked against popular market indicators.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>

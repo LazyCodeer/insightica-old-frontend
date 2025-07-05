@@ -133,7 +133,7 @@ const Header = () => {
             <Button
               variant="ghost"
               onClick={handleLogout}
-              className="text-base text-foreground/80 hover:text-accent"
+              className="text-base text-foreground/80 hover:text-white"
               data-aos="fade-down"
               data-aos-delay="600"
             >
@@ -181,7 +181,7 @@ const Header = () => {
             <Button
               variant="ghost"
               onClick={handleLogout}
-              className="w-full text-lg py-3 text-foreground/80 hover:text-accent"
+              className="w-full text-lg py-3 text-foreground/80 hover:text-white"
             >
               <LogOut className="mr-2 h-5 w-5" /> Logout
             </Button>

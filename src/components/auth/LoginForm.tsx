@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import { useToast } from "@/hooks/use-toast";
 
 const LoginFormSchema = z.object({
   email: z.string().email("Invalid email address.").min(1, "Email is required."),
@@ -30,6 +31,8 @@ export default function LoginForm() {
   const { login, loading } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
+  const { toast } = useToast();
+
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues,
@@ -40,11 +43,20 @@ export default function LoginForm() {
     setError(null);
     try {
       await login(data.email, data.password);
+      toast({
+        title: "Login Successful",
+        description: "Welcome!"
+      })
       // Redirect is handled by AuthContext or page
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || err.message || "Failed to login. Please check your credentials.";
       setError(errorMessage);
       console.error("Login failed:", err);
+      toast({
+        title: "Login Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   }
 
