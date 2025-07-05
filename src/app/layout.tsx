@@ -10,10 +10,10 @@ export const metadata: Metadata = {
     "AI-powered financial analysis for data-driven trading insights. Explore historical performance, predict indicator effectiveness, and backtest strategies.",
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "assets/logo.svg", type: "image/svg+xml" },
     ],
-    apple: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    apple: "assets/logo.svg",
+    shortcut: "assets/logo.svg",
   },
 };
 
@@ -31,7 +31,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&display=swap"
           rel="stylesheet"
         />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/assets/logo.svg" type="image/svg+xml" />
       </head>
       <body className="font-body antialiased">
         <AosProvider>
