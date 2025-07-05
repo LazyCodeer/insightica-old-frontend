@@ -13,6 +13,7 @@ import { Eye, EyeOff, UserPlus, MailCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useToast } from "@/hooks/use-toast";
 
 const SignupFormSchema = z.object({
   name: z.string().min(1, "Name is required."),
@@ -43,6 +44,7 @@ export default function SignupForm() {
   const [signupSuccess, setSignupSuccess] = useState(false);
 
   const router = useRouter();
+  const { toast } = useToast();
   
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(SignupFormSchema),
@@ -54,12 +56,21 @@ export default function SignupForm() {
     setError(null);
     try {
       await signup(data);
+      toast({
+        title: "Success!",
+        description: "Registration successful.",
+      });
       // redirect to login
       router.push('/auth/login');
       // setSignupSuccess(true);
     } catch (err: any) {
       setError(err.message || "Failed to sign up. Please try again.");
       console.error("Signup failed:", err);
+      toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description: err.message || "There was a problem submitting your request. Please try again.",
+      });
     }
   }
 
