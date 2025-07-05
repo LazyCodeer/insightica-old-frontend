@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const SignupFormSchema = z.object({
   name: z.string().min(1, "Name is required."),
-  username: z.string().min(3, "Username must be at least 3 characters."),
+  // username: z.string().min(3, "Username must be at least 3 characters."),
   email: z.string().email("Invalid email address.").min(1, "Email is required."),
   password: z.string().min(6, "Password must be at least 6 characters."),
   confirmPassword: z.string().min(6, "Password must be at least 6 characters."),
@@ -30,7 +30,7 @@ export type SignupFormValues = z.infer<typeof SignupFormSchema>;
 
 const defaultValues: Partial<SignupFormValues> = {
   name: "",
-  username: "",
+  // username: "",
   email: "",
   password: "",
   confirmPassword: "",
@@ -55,7 +55,8 @@ export default function SignupForm() {
   async function onSubmit(data: SignupFormValues) {
     setError(null);
     try {
-      await signup(data);
+      const body = { ...data, username: data.email };
+      await signup(body);
       toast({
         title: "Success!",
         description: "Registration successful.",
@@ -118,7 +119,7 @@ export default function SignupForm() {
                 </FormItem>
               )}
             />
-             <FormField
+             {/* <FormField
               control={form.control}
               name="username"
               render={({ field }) => (
@@ -130,7 +131,7 @@ export default function SignupForm() {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <FormField
               control={form.control}
               name="email"
