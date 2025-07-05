@@ -58,6 +58,19 @@ const WorkWithUsFormSchema = z.object({
       (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
       "Only .pdf, .doc, .docx files are accepted."
     ),
+
+  used_tools: z.enum(["Yes", "No"], { required_error: "Please select an option." }),
+  tools_experience: z.string().optional(),
+  unique_contribution: z.string().min(1, "This field is required."),
+  availability: z.enum([
+    "Immediate",
+    "1-3 months",
+    "3-6 months",
+    "Flexible", 
+  ], { required_error: "Please select your availability." }),
+  follow_up: z.enum(["Yes", "No"]).optional(),
+  follow_up_contact: z.string().optional(),
+
   product_familiarity: z.enum([
     "Yes - I've used them extensively", 
     "Yes - I've tried them briefly", 
@@ -118,6 +131,9 @@ const defaultValues: Partial<WorkWithUsFormValues> = {
   skills_other: "",
   experience: "",
   why_insightica: "",
+  tools_experience: "",
+  unique_contribution: "",
+  follow_up_contact: "",
   tool_feedback: "",
   unique_skills_perspective: "",
   interview_interest: "",
@@ -385,6 +401,120 @@ export default function WorkWithUsPage() {
                           </FormItem>
                         )}
                       />
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground mb-4 border-b pb-2">Product Familiarity and Team Fit</h3>
+                    <div className="space-y-6">
+                      // ...after resume field...
+<FormField
+  control={form.control}
+  name="used_tools"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Have you used trading or financial analysis tools before? <span className="text-destructive">*</span></FormLabel>
+      <RadioGroup
+        onValueChange={field.onChange}
+        defaultValue={field.value}
+        className="flex flex-row space-x-6"
+      >
+        <FormItem className="flex items-center space-x-2">
+          <FormControl><RadioGroupItem value="Yes" /></FormControl>
+          <FormLabel className="font-normal">Yes</FormLabel>
+        </FormItem>
+        <FormItem className="flex items-center space-x-2">
+          <FormControl><RadioGroupItem value="No" /></FormControl>
+          <FormLabel className="font-normal">No</FormLabel>
+        </FormItem>
+      </RadioGroup>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+<FormField
+  control={form.control}
+  name="tools_experience"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>If yes, please describe your experience with these tools (Optional)</FormLabel>
+      <FormControl>
+        <Textarea placeholder="Describe your experience with trading/financial tools..." rows={3} {...field} />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+<FormField
+  control={form.control}
+  name="unique_contribution"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>What unique contribution can you make to Insightica? <span className="text-destructive">*</span></FormLabel>
+      <FormControl>
+        <Textarea placeholder="Describe your unique contribution..." rows={3} {...field} />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+<FormField
+  control={form.control}
+  name="availability"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>What is your preferred working arrangement? <span className="text-destructive">*</span></FormLabel>
+      <Select onValueChange={field.onChange} defaultValue={field.value}>
+        <FormControl><SelectTrigger><SelectValue placeholder="Select availability" /></SelectTrigger></FormControl>
+        <SelectContent>
+          <SelectItem value="Full-time">Full-time</SelectItem>
+          <SelectItem value="Part-time">Part-time</SelectItem>
+          <SelectItem value="Freelance/Contract">Freelance/Contract</SelectItem>
+          <SelectItem value="Internship">Internship</SelectItem>
+          <SelectItem value="Other">Other</SelectItem>
+        </SelectContent>
+      </Select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+<FormField
+  control={form.control}
+  name="follow_up"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Would you like us to follow up with you for future opportunities? (Optional)</FormLabel>
+      <RadioGroup
+        onValueChange={field.onChange}
+        defaultValue={field.value}
+        className="flex flex-row space-x-6"
+      >
+        <FormItem className="flex items-center space-x-2">
+          <FormControl><RadioGroupItem value="Yes" /></FormControl>
+          <FormLabel className="font-normal">Yes</FormLabel>
+        </FormItem>
+        <FormItem className="flex items-center space-x-2">
+          <FormControl><RadioGroupItem value="No" /></FormControl>
+          <FormLabel className="font-normal">No</FormLabel>
+        </FormItem>
+      </RadioGroup>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+<FormField
+  control={form.control}
+  name="follow_up_contact"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>If yes, how should we contact you? (Optional)</FormLabel>
+      <FormControl>
+        <Input placeholder="Preferred contact method (email, phone, etc.)" {...field} />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
                     </div>
                   </div>
                   
