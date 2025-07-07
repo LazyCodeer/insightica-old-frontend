@@ -145,7 +145,7 @@ const HeroSection = () => {
             size="lg"
             className="group bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg transform hover:scale-105 transition-transform duration-300"
           >
-            <Link href="/early-access">
+            <Link href="/tools">
               Try Now
               <ArrowRight className="h-5 w-5 ml-0 group-hover:ml-2 w-0 group-hover:w-5 transition-all duration-300" />
             </Link>

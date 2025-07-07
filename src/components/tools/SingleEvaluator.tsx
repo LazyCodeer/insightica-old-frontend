@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -45,7 +44,7 @@ export default function SingleEvaluator() {
   const [selectedConditions, setSelectedConditions] = useState<readonly NumberSelectOption[]>([conditionOptions[0], conditionOptions[1]]);
   const [selectedMetric, setSelectedMetric] = useState<Metric>('sharpe_ratio');
   const [duration, setDuration] = useState<number>(30);
-  const [historyIndex, setHistoryIndex] = useState<number>(0);
+  const [historyIndex, setHistoryIndex] = useState<number>(1);
   const [radarStock, setRadarStock] = useState<StringSelectOption | null>(selectedStocks[0] || null);
   
   // New state for the "Performance Analysis" tab
@@ -156,7 +155,7 @@ export default function SingleEvaluator() {
     const historyKey = `history_${historyIndex}`;
     const currentHistoryData = analysisData[historyKey];
     
-    if (!currentHistoryData || !radarStock) return [];
+    if (!currentHistoryData || !radarStock) return { normalizedData: [], rawData: [] };
 
     const stock = radarStock;
     const rawData: any[] = [];
@@ -195,7 +194,7 @@ export default function SingleEvaluator() {
         return newItem;
     });
 
-    return normalizedData;
+    return { normalizedData, rawData };
   }
 
   const getLeaderboardData = () => {
@@ -227,7 +226,7 @@ export default function SingleEvaluator() {
     const conditionKey = `c${analysisCondition.value}`;
     const stockName = analysisStock.value;
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 1; i < 100; i++) {
         const historyKey = `history_${i}`;
         const metricValue = analysisData[historyKey]?.[conditionKey]?.[stockName]?.[analysisMetric];
         data.push({
@@ -380,6 +379,7 @@ export default function SingleEvaluator() {
                 <Slider 
                     value={[historyIndex]} 
                     onValueChange={(v) => setHistoryIndex(v[0])} 
+                    min={1}
                     max={99} 
                     step={1} 
                     disabled={!hasData || isLoading}
@@ -402,7 +402,7 @@ export default function SingleEvaluator() {
                     const heatmapData = getHeatmapGridData();
                     return heatmapData ? (
                       <div className="w-full overflow-x-auto p-1">
-                          <div className="min-w-[1200px]">
+                          <div className="min-w-[1600px]">
                             <HeatMapGrid
                             data={heatmapData.data}
                             xLabels={heatmapData.xLabels}
@@ -416,7 +416,10 @@ export default function SingleEvaluator() {
                                 color: 'hsl(var(--muted-foreground))',
                                 fontSize: '.8rem',
                                 textTransform: 'capitalize',
-                                width: '200px'
+                                whiteSpace: 'nowrap',
+                                overflow: 'visible',
+                                textOverflow: 'ellipsis',
+                                maxWidth: 'none',
                             })}
                             cellStyle={(_x, _y, ratio) => {
                                 const hue = ratio * 120; // 0=red, 120=green
@@ -453,9 +456,10 @@ export default function SingleEvaluator() {
               <CardHeader><CardTitle>Metrics Overview Radar</CardTitle><CardDescription>Holistic view of all metrics for up to 8 conditions on a single stock.</CardDescription></CardHeader>
               <CardContent>
                  {isLoading ? <div className="flex justify-center items-center h-80"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> :
-                  radarData.length > 0 ?
+                  radarData.normalizedData.length > 0 ?
                   <RadarChart 
-                    data={radarData}
+                    data={radarData.normalizedData}
+                    rawData={radarData.rawData}
                     angleKey="condition"
                     domain={[-1, 1]}
                     radars={radarChartRadars}
@@ -473,11 +477,11 @@ export default function SingleEvaluator() {
                     <div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1">
                       <h4>Metric vs History Bar Graph</h4>
                       <p>This tool shows the historical performance of a chosen trading strategy for a selected stock, based on a chosen metric.</p>
-                      <ul><li><strong>X-axis:</strong> Represents different historical points (labeled as History 0, History 1, etc.).</li><li><strong>Y-axis:</strong> Displays the values of the chosen metric.</li><li><strong>Purpose:</strong> Reveals how the strategy’s performance evolves over time for the stock.</li></ul>
+                      <ul><li><strong>X-axis:</strong> Represents different historical points (labeled as History 0, History 1, etc.).</li><li><strong>Y-axis:</strong> Displays the values of the chosen metric.</li><li><strong>Purpose:</strong> Reveals how the strategy's performance evolves over time for the stock.</li></ul>
                       <hr className="my-4" />
                       <h4>Metric vs Stock Bar Graph</h4>
                       <p>This tool shows the performance of a chosen trading strategy across multiple stocks at a given historical point, adjustable via slider.</p>
-                      <ul><li><strong>X-axis:</strong> Lists the stocks.</li><li><strong>Y-axis:</strong> Displays the values of the chosen metric.</li><li><strong>Purpose:</strong> Compares the strategy’s effectiveness across different stocks at the selected time.</li></ul>
+                      <ul><li><strong>X-axis:</strong> Lists the stocks.</li><li><strong>Y-axis:</strong> Displays the values of the chosen metric.</li><li><strong>Purpose:</strong> Compares the strategy's effectiveness across different stocks at the selected time.</li></ul>
                     </div>
                   </AccordionContent>
                 </AccordionItem>

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
@@ -69,7 +68,8 @@ export default function DoubleEvaluator() {
   const [otherConditions, setOtherConditions] = useState<readonly NumberSelectOption[]>([conditionOptions[1], conditionOptions[2]]);
   const [selectedMetric, setSelectedMetric] = useState<Metric>('sharpe_ratio');
   const [duration, setDuration] = useState<number>(30);
-  const [historyIndex, setHistoryIndex] = useState<number>(0);
+  const [historyIndex, setHistoryIndex] = useState<number>(1);
+  const [radarStock, setRadarStock] = useState<StringSelectOption | null>(selectedStocks[0] || null);
   
   // Data states
   const [analysisData, setAnalysisData] = useState<DoubleAnalyzerAPIOutput>({});
@@ -95,6 +95,15 @@ export default function DoubleEvaluator() {
 
     return `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
   }, [historyIndex, duration]);
+
+  useEffect(() => {
+    if (!selectedStocks.find(s => s.value === radarStock?.value)) {
+        setRadarStock(selectedStocks.length > 0 ? selectedStocks[0] : null);
+    }
+     if (!selectedStocks.find(s => s.value === analysisStock?.value)) {
+        setAnalysisStock(selectedStocks.length > 0 ? selectedStocks[0] : null);
+    }
+  }, [selectedStocks, radarStock, analysisStock]);
 
   const allSelectedConditions = useMemo(() => {
     if (!fixedCondition) return otherConditions;
@@ -219,10 +228,10 @@ export default function DoubleEvaluator() {
     const historyKey = `history_${historyIndex}`;
     const currentHistoryData = analysisData[historyKey];
     
-    if (!currentHistoryData || !selectedStocks.length || !fixedCondition || otherConditions.length === 0) return [];
+    if (!currentHistoryData || !radarStock || !fixedCondition || otherConditions.length === 0) return { normalizedData: [], rawData: [] };
     
     // Using the first selected stock for the radar view
-    const stock = selectedStocks[0];
+    const stock = radarStock;
     const rawData: any[] = [];
     const fixedCondId = fixedCondition.value;
 
@@ -262,7 +271,7 @@ export default function DoubleEvaluator() {
         return newItem;
     });
 
-    return normalizedData;
+    return { normalizedData, rawData };
   }
   
   const getChordData = () => {
@@ -304,7 +313,7 @@ export default function DoubleEvaluator() {
     const pairKey = getPairKey(analysisCondition1.value, analysisCondition2.value);
     const stockName = analysisStock.value;
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 1; i < 45; i++) {
         const historyKey = `history_${i}`;
         const metricValue = analysisData[historyKey]?.[pairKey]?.[stockName]?.[analysisMetric];
         data.push({
@@ -401,6 +410,19 @@ export default function DoubleEvaluator() {
                         </ShadSelect>
                     </div>
                 )}
+                {activeTab === 'radar' && (
+                    <div className="space-y-2">
+                        <Label>Stock</Label>
+                        <ShadSelect
+                            value={radarStock?.value}
+                            onValueChange={(value) => setRadarStock(selectedStocks.find(s => s.value === value) || null)}
+                            disabled={selectedStocks.length === 0 || isLoading || !hasData}
+                        >
+                            <SelectTrigger><SelectValue placeholder="Select a stock" /></SelectTrigger>
+                            <SelectContent>{selectedStocks.map(opt => (<SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>))}</SelectContent>
+                        </ShadSelect>
+                    </div>
+                )}
                 {activeTab === 'analysis' && (
                     <>
                          <div className="space-y-2">
@@ -469,6 +491,7 @@ export default function DoubleEvaluator() {
                 <Slider 
                     value={[historyIndex]} 
                     onValueChange={(v) => setHistoryIndex(v[0])} 
+                    min={1}
                     max={44} 
                     step={1} 
                     disabled={!hasData || isLoading}
@@ -491,14 +514,14 @@ export default function DoubleEvaluator() {
                     const heatmapData = getHeatmapGridData();
                     return heatmapData ? (
                       <div className="w-full overflow-x-auto p-1">
-                        <div className="min-w-[1200px]">
+                        <div className="min-w-[1600px]">
                             <HeatMapGrid
                             data={heatmapData.data}
                             xLabels={heatmapData.xLabels}
                             yLabels={heatmapData.yLabels}
                             cellRender={(_x, _y, value) => <div title={`Value: ${value}`}>{value}</div>}
                             xLabelsStyle={() => ({ color: 'hsl(var(--muted-foreground))', fontSize: '.8rem' })}
-                            yLabelsStyle={() => ({ color: 'hsl(var(--muted-foreground))', fontSize: '.8rem', textTransform: 'capitalize', whiteSpace: 'nowrap' })}
+                            yLabelsStyle={() => ({ color: 'hsl(var(--muted-foreground))', fontSize: '.8rem', textTransform: 'capitalize', whiteSpace: 'nowrap', overflow: 'visible', textOverflow: 'ellipsis', outerWidth: '100%' })}
                             cellStyle={(_x, _y, ratio) => {
                                 const hue = ratio * 120; // 0=red, 120=green
                                 return {
@@ -534,9 +557,10 @@ export default function DoubleEvaluator() {
               <CardHeader><CardTitle>Pair Metrics Overview</CardTitle><CardDescription>Holistic view of all metrics for selected pairs on the first selected stock.</CardDescription></CardHeader>
               <CardContent>
                 {isLoading ? <div className="flex justify-center items-center h-80"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : 
-                  radarData.length > 0 ?
+                  radarData.normalizedData.length > 0 ?
                   <RadarChart 
-                    data={radarData}
+                    data={radarData.normalizedData}
+                    rawData={radarData.rawData}
                     angleKey="condition"
                     domain={[-1, 1]}
                     radars={radarChartRadars}
@@ -559,7 +583,7 @@ export default function DoubleEvaluator() {
                         <hr className="my-4" />
                         <h4>Metric vs Stock Bar Graph</h4>
                         <p>This tool shows the performance of a chosen pair of trading strategies (Condition_1 and Condition_2, each selected via single-select dropdown) across multiple stocks at a given historical point, adjustable via slider.</p>
-                        <ul><li><strong>X-axis:</strong> Lists the stocks.</li><li><strong>Y-axis:</strong> Displays the values of the chosen metric.</li><li><strong>Purpose:</strong> Compares the strategy pair’s effectiveness across different stocks at the selected time.</li></ul>
+                        <ul><li><strong>X-axis:</strong> Lists the stocks.</li><li><strong>Y-axis:</strong> Displays the values of the chosen metric.</li><li><strong>Purpose:</strong> Compares the strategy pair's effectiveness across different stocks at the selected time.</li></ul>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -592,7 +616,7 @@ export default function DoubleEvaluator() {
              <Accordion type="single" collapsible className="w-full mb-4 bg-card/50 px-4 rounded-lg border border-border/50">
                 <AccordionItem value="item-1" className="border-b-0">
                   <AccordionTrigger className="hover:no-underline"><div className="flex items-center gap-2"><HelpCircle className="h-5 w-5 text-accent" /><span>How to use the Chord Diagram</span></div></AccordionTrigger>
-                  <AccordionContent><div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1"><p>This tool helps you see at a glance how pairs of trading strategies, selected from a pool of strategies, perform for a chosen stock based on a single metric at a specific historical point.</p><ul><li><strong>Arcs:</strong> Each arc on the diagram’s circumference represents a trading strategy from the selected pool (3–6 strategies, chosen via multi-select dropdown).</li><li><strong>Bands:</strong> Each band connecting two arcs shows the performance of the pair of strategies, with thickness indicating performance strength for the chosen metric at the historical point set by the slider.</li><li><strong>Purpose:</strong> Visualizes the relative performance of strategy pairs for the selected stock.</li></ul></div></AccordionContent>
+                  <AccordionContent><div className="prose prose-sm max-w-none text-muted-foreground prose-strong:text-foreground/90 prose-headings:text-foreground prose-p:my-2 prose-ul:my-2 prose-li:my-1"><p>This tool helps you see at a glance how pairs of trading strategies, selected from a pool of strategies, perform for a chosen stock based on a single metric at a specific historical point.</p><ul><li><strong>Arcs:</strong> Each arc on the diagram's circumference represents a trading strategy from the selected pool (3–6 strategies, chosen via multi-select dropdown).</li><li><strong>Bands:</strong> Each band connecting two arcs shows the performance of the pair of strategies, with thickness indicating performance strength for the chosen metric at the historical point set by the slider.</li><li><strong>Purpose:</strong> Visualizes the relative performance of strategy pairs for the selected stock.</li></ul></div></AccordionContent>
                 </AccordionItem>
               </Accordion>
             <Card>

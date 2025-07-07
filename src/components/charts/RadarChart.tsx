@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -22,6 +21,7 @@ interface RadarInfo {
 
 interface RadarChartProps<T> {
   data: T[];
+  rawData: T[];
   angleKey: keyof T;
   radars: RadarInfo[];
   title?: string;
@@ -30,6 +30,7 @@ interface RadarChartProps<T> {
 
 export function RadarChart<T extends Record<string, any>>({
   data,
+  rawData,
   angleKey,
   radars,
   title,
@@ -43,6 +44,36 @@ export function RadarChart<T extends Record<string, any>>({
 
   const handleMouseLeave = () => {
     setHoveredRadar(null);
+  };
+
+  // Custom tooltip to show both normalized and raw values
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload || payload.length === 0) return null;
+    // Find the raw data entry for this angle (label)
+    const rawDatum = rawData.find((d) => d[angleKey] === label);
+    return (
+      <div style={{
+        background: 'hsl(var(--background))',
+        border: '1px solid hsl(var(--border))',
+        padding: '0.5rem',
+        borderRadius: '0.5rem',
+        fontSize: '0.9rem'
+      }}>
+        <div><strong>{label}</strong></div>
+        {payload.map((entry: any) => (
+          <div key={entry.dataKey}>
+            <span style={{ color: entry.color }}>{entry.name}:</span>
+            {/* &nbsp;{entry.value} */}
+            {/* &nbsp;{rawDatum[entry.dataKey]} */}
+            {rawDatum && rawDatum[entry.dataKey] !== undefined && (
+              <span style={{ color: '#888', marginLeft: 8 }}>
+                {rawDatum[entry.dataKey]}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -60,16 +91,13 @@ export function RadarChart<T extends Record<string, any>>({
               dataKey={radar.dataKey}
               stroke={radar.stroke}
               fill={radar.fill}
-              fillOpacity={hoveredRadar === null ? 0.6 : (hoveredRadar === radar.dataKey ? 0.8 : 0.2)}
-              strokeOpacity={hoveredRadar === null ? 1 : (hoveredRadar === radar.dataKey ? 1 : 0.4)}
+              fillOpacity={hoveredRadar === null ? 0.6 : (hoveredRadar === radar.dataKey ? 1 : 0)}
+              strokeOpacity={hoveredRadar === null ? 1 : (hoveredRadar === radar.dataKey ? 1 : 0)}
             />
           ))}
           <Legend onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
           <Tooltip 
-             contentStyle={{
-              background: 'hsl(var(--background))',
-              borderColor: 'hsl(var(--border))',
-            }}
+            content={<CustomTooltip />}
           />
         </RechartsRadarChart>
       </ResponsiveContainer>

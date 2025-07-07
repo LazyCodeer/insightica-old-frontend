@@ -16,6 +16,7 @@ import anuj from "../../../public/assets/anuj.jpg";
 import saatvik from "../../../public/assets/saatvik.jpg";
 import saisab from "../../../public/assets/saisab.png";
 import manas from "../../../public/assets/manas.jpg";
+import { FaLinkedin } from "react-icons/fa";
 
 const teamMembers = [
   {
@@ -25,6 +26,7 @@ const teamMembers = [
       "Manas started Insightica from scratch, designing and developing the platform as a personal project to simplify decisions in retail trading. It's since grown into a more complete product under his lead. He guides the technical foundation and overall direction, working across design, logic, and long-term planning while relying deeply on the team to bring structure and momentum.",
     imageUrl: manas,
     imageHint: "person man",
+    linkedin: "https://www.linkedin.com/in/manas-nandan/",
   },
   {
     name: "Saatvik Pandey",
@@ -33,6 +35,7 @@ const teamMembers = [
       "Saatvik has been instrumental in taking Insightica from an early build to a reliable product. He's behind key performance optimizations and ensures everything runs smoothly under the hood. His approach is precise and thoughtful, and he also shapes the product's design, making it intuitive and well-structured.",
     imageUrl: saatvik,
     imageHint: "person man",
+    linkedin: "https://www.linkedin.com/in/saatvik-pandey-8250642a7/",
   },
   {
     name: "Saisab Sadhu",
@@ -41,6 +44,7 @@ const teamMembers = [
       "Saisab leads Insightica's operations, overseeing execution, managing finances, and supporting long-term planning. His role spans beyond logistics; he contributes to strategy, testing, and roadmap discussions. His systems-focused thinking helps keep the team grounded and moving forward.",
     imageUrl: saisab,
     imageHint: "person man",
+    linkedin: "https://www.linkedin.com/in/saisab-sadhu/",
   },
   {
     name: "Anuj Wani",
@@ -49,6 +53,7 @@ const teamMembers = [
       "Anuj connects the product to its users. He refines the frontend, ensuring it's clear, usable, and relevant. On the strategy side, he helps define product direction. He leads marketing, ensuring Insightica speaks to the right people in the right way. His work ties together user needs and market fit.",
     imageUrl: anuj,
     imageHint: "person man",
+    linkedin: "https://www.linkedin.com/in/anuj--wani/",
   },
 ];
 
@@ -67,7 +72,7 @@ export default function AboutPage() {
           <div className="space-y-6 text-lg text-muted-foreground">
             <p>
               At Insightica, we believe data should empower, not overwhelm.
-              We’re here to help retail traders cut through the noise, find
+              We're here to help retail traders cut through the noise, find
               clarity in the chaos, and make better trading decisions—without
               needing to be market experts or technical analysts.
             </p>
@@ -102,13 +107,13 @@ export default function AboutPage() {
                 to a different idea: use machine learning to predict which
                 existing indicator would perform best for specific stocks and
                 timeframes. His model, tested with over 85% accuracy on
-                historical data, became the foundation of Insightica. Manas’s
+                historical data, became the foundation of Insightica. Manas's
                 goal was clear—share this breakthrough to help traders make
                 informed decisions without the guesswork.
               </p>
               <p>
-                Today, Insightica’s mission is to empower traders everywhere
-                with data-driven insights. We believe trading shouldn’t feel
+                Today, Insightica's mission is to empower traders everywhere
+                with data-driven insights. We believe trading shouldn't feel
                 like a gamble but a calculated choice. Our tools— Predictor,
                 Evaluators, and Backtester—deliver precise recommendations and
                 performance analysis, helping you choose strategies with
@@ -169,6 +174,17 @@ export default function AboutPage() {
                     <CardDescription className="text-accent text-sm">
                       {member.role}
                     </CardDescription>
+                    {member.linkedin && (
+                      <a
+                        href={member.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center mt-2 text-blue-600 hover:text-blue-800"
+                        aria-label={`LinkedIn profile of ${member.name}`}
+                      >
+                        <FaLinkedin size={22} />
+                      </a>
+                    )}
                   </CardHeader>
                   <CardContent className="text-center flex-grow">
                     <p className="text-muted-foreground text-sm">
