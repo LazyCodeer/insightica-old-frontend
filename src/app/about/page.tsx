@@ -155,7 +155,7 @@ export default function AboutPage() {
               {teamMembers.map((member) => (
                 <Card
                   key={member.name}
-                  className="bg-card/80 border-border/50 flex flex-col hover:shadow-xl hover:border-accent/50 transition-all duration-300 transform hover:-translate-y-1 w-full md:w-1/2 lg:w-1/4"
+                  className="bg-card/80 border-border/50 flex flex-col hover:shadow-xl hover:border-accent/50 transition-all duration-300 transform hover:-translate-y-1 w-full"
                 >
                   <CardHeader className="items-center text-center">
                     <div className="relative h-24 w-24 mb-4">
