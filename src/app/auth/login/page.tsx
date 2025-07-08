@@ -36,7 +36,7 @@ export default function LoginPage() {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow flex items-center justify-center">
-        <PageSection className="w-full py-8" containerClassName="w-full max-w-md md:w-[500px] md:max-w-[500px]">
+        <PageSection className="w-full py-8" containerClassName="py-20 md:py-8 w-full max-w-md md:w-[500px] md:max-w-[500px]">
           <LoginForm />
         </PageSection>
       </main>

@@ -98,8 +98,8 @@ export default function SignupForm() {
     <Card className="w-full bg-card/90 border-border/60 shadow-xl">
       <CardHeader className="text-center">
         <UserPlus className="mx-auto h-10 w-10 text-accent mb-3" />
-        <CardTitle className="text-3xl font-bold text-card-foreground">Create an Account</CardTitle>
-        <CardDescription className="text-muted-foreground">
+        <CardTitle className="text-2xl md:text-3xl font-bold text-card-foreground">Create an Account</CardTitle>
+        <CardDescription className="text-sm md:text-base text-muted-foreground">
           Join Insightica to access powerful trading tools.
         </CardDescription>
       </CardHeader>

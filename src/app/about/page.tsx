@@ -151,11 +151,11 @@ export default function AboutPage() {
               we each bring different strengths, the work is shared, and the
               vision is collective.
             </p>
-            <div className="flex justify-center gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-center gap-8">
               {teamMembers.map((member) => (
                 <Card
                   key={member.name}
-                  className="bg-card/80 border-border/50 flex flex-col hover:shadow-xl hover:border-accent/50 transition-all duration-300 transform hover:-translate-y-1 w-1/2 md:w-1/3 lg:w-1/4"
+                  className="bg-card/80 border-border/50 flex flex-col hover:shadow-xl hover:border-accent/50 transition-all duration-300 transform hover:-translate-y-1 w-full md:w-1/2 lg:w-1/4"
                 >
                   <CardHeader className="items-center text-center">
                     <div className="relative h-24 w-24 mb-4">

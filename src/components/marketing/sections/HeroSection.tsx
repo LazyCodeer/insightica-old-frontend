@@ -85,16 +85,16 @@ const HeroSection = () => {
         >
           <Link
             href="/testing-results"
-            className="group relative rounded-full px-5 py-2.5 transition-all hover:shadow-lg 
+            className="group relative rounded-full px-3 md:px-5 py-2.5 transition-all hover:shadow-lg 
                       bg-white/20 backdrop-blur-md hover:bg-white/30
                       border border-white/40 hover:border-white/50
                       shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
           >
             <div className="flex items-center">
-              <span className="mr-2 rounded-full bg-blue-600/90 px-2.5 py-0.5 text-xs font-semibold text-white">
+              <span className="mr-2 rounded-full bg-blue-600/90 px-1.5 md:px-2.5 py-0.5 text-xs font-semibold text-white">
                 NEW
               </span>
-              <span className="text-sm font-medium text-gray-800">
+              <span className="text-xs md:text-sm font-medium text-gray-800">
                 Check out our theoretical testing results
               </span>
               <ArrowRight className="ml-1.5 h-4 w-4 text-blue-600 transition-transform group-hover:translate-x-1" />
@@ -119,14 +119,14 @@ const HeroSection = () => {
         </div>
 
         <h1
-          className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl text-foreground"
+          className="text-2xl font-bold tracking-tight sm:text-5xl md:text-6xl text-foreground"
           data-aos="fade-up"
         >
           Clarity Over Chaos, <br />
           <span className="text-accent">Insights</span> Over Noise
         </h1>
         <p
-          className="mt-8 max-w-6xl mx-auto text-lg leading-8 text-foreground/80 sm:text-xl"
+          className="mt-8 max-w-6xl mx-auto text-md leading-8 text-foreground/80 sm:text-xl"
           data-aos="fade-up"
           data-aos-delay="200"
         >
