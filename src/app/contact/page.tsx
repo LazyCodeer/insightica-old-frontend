@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, User } from 'lucide-react';
 
 
 export default function ContactPage() {
@@ -68,16 +68,16 @@ export default function ContactPage() {
               <h2 className="text-2xl font-semibold text-foreground">Contact Information</h2>
               <div className="space-y-4 text-muted-foreground">
                 <div className="flex items-center space-x-3">
+                  <User className="h-6 w-6 text-accent" />
+                  <div className="hover:text-accent">Grievance Officer: Anuj Wani</div>
+                </div>
+                <div className="flex items-center space-x-3">
                   <Mail className="h-6 w-6 text-accent" />
-                  <a href="mailto:support@insightica.com" className="hover:text-accent">support@insightica.com</a>
+                  <a href="mailto:contact.insightica@gmail.com" className="hover:text-accent">contact.insightica@gmail.com</a>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="h-6 w-6 text-accent" />
-                  <span>+1 (555) 123-4567 (Mon-Fri, 9am-5pm EST)</span>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <MapPin className="h-6 w-6 text-accent mt-1" />
-                  <span>123 Insight Avenue, Data City, ST 54321, India (Virtual Office)</span>
+                  <span>+917066997474</span>
                 </div>
               </div>
               <div className="mt-8">
