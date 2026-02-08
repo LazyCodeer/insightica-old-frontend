@@ -1,12 +1,17 @@
-
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import apiClient from '@/lib/apiClient';
-import { signupUser } from '@/api/user';
-import type { SignupFormValues } from '@/components/auth/SignupForm';
-import type { AppUser } from '@/types/user';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { useRouter } from "next/navigation";
+import apiClient from "@/lib/apiClient";
+import { signupUser } from "@/api/user";
+import type { SignupFormValues } from "@/components/auth/SignupForm";
+import type { AppUser } from "@/types/user";
 
 interface AuthContextType {
   currentUser: AppUser | null;
@@ -39,22 +44,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const initializeAuth = () => {
       setLoading(true);
       try {
-        const accessToken = localStorage.getItem('insightica_access_token');
-        const storedUser = localStorage.getItem('insightica_user');
+        const accessToken = localStorage.getItem("insightica_access_token");
+        const storedUser = localStorage.getItem("insightica_user");
 
         if (accessToken && storedUser) {
           const user: AppUser = JSON.parse(storedUser);
           setCurrentUser(user);
-          apiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+          apiClient.defaults.headers.common["Authorization"] =
+            `Bearer ${accessToken}`;
         }
       } catch (error) {
         console.error("Failed to initialize auth from localStorage:", error);
         // Clear potentially corrupted data
         setCurrentUser(null);
-        localStorage.removeItem('insightica_access_token');
-        localStorage.removeItem('insightica_refresh_token');
-        localStorage.removeItem('insightica_user');
-        delete apiClient.defaults.headers.common['Authorization'];
+        localStorage.removeItem("insightica_access_token");
+        localStorage.removeItem("insightica_refresh_token");
+        localStorage.removeItem("insightica_user");
+        delete apiClient.defaults.headers.common["Authorization"];
       } finally {
         setLoading(false);
       }
@@ -65,19 +71,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (email: string, pass: string) => {
     setLoading(true);
-    const response = await apiClient.post('/user/signin/', { email: email, password: pass });
-    const { access, refresh, user } = response.data;
-    
-    localStorage.setItem('insightica_access_token', access);
-    localStorage.setItem('insightica_refresh_token', refresh);
-    localStorage.setItem('insightica_user', JSON.stringify(user));
-    
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${access}`;
-    
-    setCurrentUser(user);
-    
-    setLoading(false);
-    router.push('/tools');
+    try {
+      const response = await apiClient.post("/user/signin/", {
+        email: email,
+        password: pass,
+      });
+      const { access, refresh, user } = response.data;
+
+      localStorage.setItem("insightica_access_token", access);
+      localStorage.setItem("insightica_refresh_token", refresh);
+      localStorage.setItem("insightica_user", JSON.stringify(user));
+
+      apiClient.defaults.headers.common["Authorization"] = `Bearer ${access}`;
+
+      setCurrentUser(user);
+
+      router.push("/tools");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signup = async (userData: SignupFormValues) => {
@@ -95,17 +107,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = async () => {
     setLoading(true);
     try {
-        await apiClient.post('/user/signout/', {});
+      await apiClient.post("/user/signout/", {});
     } catch (error) {
-        console.error("Logout API call failed, but proceeding with client-side logout:", error);
+      console.error(
+        "Logout API call failed, but proceeding with client-side logout:",
+        error,
+      );
     } finally {
-        setCurrentUser(null);
-        localStorage.removeItem('insightica_access_token');
-        localStorage.removeItem('insightica_refresh_token');
-        localStorage.removeItem('insightica_user');
-        delete apiClient.defaults.headers.common['Authorization'];
-        setLoading(false);
-        router.push('/');
+      setCurrentUser(null);
+      localStorage.removeItem("insightica_access_token");
+      localStorage.removeItem("insightica_refresh_token");
+      localStorage.removeItem("insightica_user");
+      delete apiClient.defaults.headers.common["Authorization"];
+      setLoading(false);
+      router.push("/");
     }
   };
 
