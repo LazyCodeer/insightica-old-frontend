@@ -37,12 +37,13 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const initializeAuth = () => {
-      setLoading(true);
+      setInitializing(true);
       try {
         const accessToken = localStorage.getItem("insightica_access_token");
         const storedUser = localStorage.getItem("insightica_user");
@@ -62,7 +63,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         localStorage.removeItem("insightica_user");
         delete apiClient.defaults.headers.common["Authorization"];
       } finally {
-        setLoading(false);
+        setInitializing(false);
       }
     };
 
@@ -132,10 +133,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     logout,
   };
 
-  // Render children only when not loading to prevent layout shifts or flashes
+  // Render children only when not initializing to prevent layout shifts or flashes
   return (
     <AuthContext.Provider value={value}>
-      {loading ? null : children}
+      {initializing ? null : children}
     </AuthContext.Provider>
   );
 };

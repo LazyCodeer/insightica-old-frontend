@@ -49,7 +49,7 @@ export default function LoginForm() {
       })
       // Redirect is handled by AuthContext or page
     } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || err.message || "Failed to login. Please check your credentials.";
+      const errorMessage = err.response?.data?.error || err.response?.data?.detail || err.message || "Failed to login. Please check your credentials.";
       setError(errorMessage);
       console.error("Login failed:", err);
       toast({
