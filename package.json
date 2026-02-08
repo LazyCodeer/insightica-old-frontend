@@ -42,7 +42,7 @@
     "firebase": "^11.9.1",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.475.0",
-    "next": "15.3.3",
+    "next": "^16.1.6",
     "patch-package": "^8.0.0",
     "react": "^18.3.1",
     "react-chord-diagram": "1.8.0",
@@ -63,7 +63,6 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
